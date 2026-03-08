@@ -45,6 +45,8 @@ export const zhCnDictionary: DictionaryShape = {
       description: "预览通过 parse/generate API 生成，与下载内容保持一致。",
       empty: "这里会显示生成后的 TOML 预览。",
       warnings: "提示",
+      includeCommentsLabel: "包含配置说明注释",
+      includeCommentsHint: "在预览、复制和下载结果中，为已支持的配置项追加便于阅读的说明注释。",
     },
     advanced: {
       title: "高级未支持 TOML",
@@ -185,6 +187,8 @@ export const zhCnDictionary: DictionaryShape = {
     cwd: ["工作目录", "进程启动的工作目录覆盖。"],
     url: ["URL", "远程 MCP endpoint 地址。"],
     bearerTokenEnvVar: ["Bearer Token 环境变量", "Authorization: Bearer 使用的环境变量名。"],
+    mcpEnabled: ["启用", "控制该 MCP server 是否启用。"],
+    mcpRequired: ["必需", "控制 Codex 是否将该 MCP server 视为必需。"],
     startupTimeoutSec: ["启动超时 (秒)", "服务启动超时，单位秒。"],
     toolTimeoutSec: ["工具超时 (秒)", "MCP tool 的默认超时。"],
     enabledTools: ["启用工具", "工具 allow-list。"],

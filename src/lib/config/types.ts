@@ -195,3 +195,8 @@ export interface GenerateConfigResponse {
   toml: string;
   warnings: ConfigParseWarning[];
 }
+
+export interface GenerateConfigOptions {
+  includeComments?: boolean;
+  locale?: SupportedLocale;
+}

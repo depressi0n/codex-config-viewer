@@ -23,7 +23,7 @@ export default async function LocalePage({
       locale={locale}
       dictionary={dictionary}
       initialDraft={createSampleDraft()}
-      initialPreview={createSampleToml()}
+      initialPreview={createSampleToml({ includeComments: true, locale })}
       initialUnsupportedToml=""
     />
   );

@@ -89,6 +89,7 @@ export function ConfigEditor({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState<ConfigDraft>(initialDraft);
   const [unsupportedToml, setUnsupportedToml] = useState(initialUnsupportedToml);
+  const [includeComments, setIncludeComments] = useState(true);
   const [preview, setPreview] = useState(initialPreview);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [status, setStatus] = useState<StatusMessage>({
@@ -115,6 +116,7 @@ export function ConfigEditor({
       const parsed = JSON.parse(saved) as {
         draft: ConfigDraft;
         unsupportedToml: string;
+        includeComments?: boolean;
         preview: string;
       };
 
@@ -124,6 +126,10 @@ export function ConfigEditor({
 
       if (typeof parsed.unsupportedToml === "string") {
         setUnsupportedToml(parsed.unsupportedToml);
+      }
+
+      if (typeof parsed.includeComments === "boolean") {
+        setIncludeComments(parsed.includeComments);
       }
 
       if (typeof parsed.preview === "string" && parsed.preview.trim()) {
@@ -140,10 +146,11 @@ export function ConfigEditor({
       JSON.stringify({
         draft,
         unsupportedToml,
+        includeComments,
         preview,
       }),
     );
-  }, [draft, unsupportedToml, preview]);
+  }, [draft, unsupportedToml, includeComments, preview]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -159,6 +166,10 @@ export function ConfigEditor({
           body: JSON.stringify({
             draft,
             unsupportedToml,
+            options: {
+              includeComments,
+              locale,
+            },
           }),
           signal: controller.signal,
         });
@@ -196,7 +207,14 @@ export function ConfigEditor({
       controller.abort();
       window.clearTimeout(timer);
     };
-  }, [dictionary.app.actions.idle, dictionary.app.feedback.generateFailed, draft, unsupportedToml]);
+  }, [
+    dictionary.app.actions.idle,
+    dictionary.app.feedback.generateFailed,
+    draft,
+    includeComments,
+    locale,
+    unsupportedToml,
+  ]);
 
   const sectionMeta = useMemo(
     () =>
@@ -2116,6 +2134,26 @@ export function ConfigEditor({
                     ? dictionary.app.actions.generating
                     : dictionary.app.actions.idle}
                 </div>
+              </div>
+              <div className="mb-4">
+                <label
+                  className={`flex items-start gap-3 rounded-2xl border px-4 py-3 ${boolInputClass(includeComments)}`}
+                >
+                  <input
+                    type="checkbox"
+                    className="mt-1 h-4 w-4 accent-emerald-400"
+                    checked={includeComments}
+                    onChange={(event) => setIncludeComments(event.target.checked)}
+                  />
+                  <div>
+                    <div className="text-sm font-medium text-slate-200">
+                      {dictionary.app.preview.includeCommentsLabel}
+                    </div>
+                    <p className="mt-1 text-xs leading-5 text-slate-400">
+                      {dictionary.app.preview.includeCommentsHint}
+                    </p>
+                  </div>
+                </label>
               </div>
               {warnings.length > 0 ? (
                 <div className="mb-4 rounded-2xl border border-amber-400/20 bg-amber-500/10 p-3">

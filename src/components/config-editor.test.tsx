@@ -13,7 +13,7 @@ function mockGenerateFetch() {
     "fetch",
     vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
       const body = init?.body ? JSON.parse(String(init.body)) : {};
-      const payload = generateConfigToml(body.draft, body.unsupportedToml);
+      const payload = generateConfigToml(body.draft, body.unsupportedToml, body.options);
 
       return new Response(JSON.stringify(payload), {
         status: 200,
@@ -23,6 +23,10 @@ function mockGenerateFetch() {
       });
     }),
   );
+}
+
+function createPreview(locale: "en" | "zh-CN", includeComments = true) {
+  return generateConfigToml(createSampleDraft(), "", { includeComments, locale }).toml;
 }
 
 describe("ConfigEditor", () => {
@@ -41,7 +45,7 @@ describe("ConfigEditor", () => {
         locale="en"
         dictionary={getDictionary("en")}
         initialDraft={createSampleDraft()}
-        initialPreview={generateConfigToml(createSampleDraft()).toml}
+        initialPreview={createPreview("en")}
         initialUnsupportedToml=""
       />,
     );
@@ -67,7 +71,7 @@ describe("ConfigEditor", () => {
         locale="zh-CN"
         dictionary={getDictionary("zh-CN")}
         initialDraft={createSampleDraft()}
-        initialPreview={generateConfigToml(createSampleDraft()).toml}
+        initialPreview={createPreview("zh-CN")}
         initialUnsupportedToml=""
       />,
     );
@@ -89,7 +93,7 @@ describe("ConfigEditor", () => {
         locale="en"
         dictionary={getDictionary("en")}
         initialDraft={createSampleDraft()}
-        initialPreview={generateConfigToml(createSampleDraft()).toml}
+        initialPreview={createPreview("en")}
         initialUnsupportedToml=""
       />,
     );
@@ -118,7 +122,7 @@ describe("ConfigEditor", () => {
         locale="en"
         dictionary={getDictionary("en")}
         initialDraft={createSampleDraft()}
-        initialPreview={generateConfigToml(createSampleDraft()).toml}
+        initialPreview={createPreview("en")}
         initialUnsupportedToml=""
       />,
     );
@@ -163,6 +167,35 @@ describe("ConfigEditor", () => {
       );
       expect(window.localStorage.getItem("codex-config-viewer-state:v1")).toContain(
         '"networkAccess":true',
+      );
+    });
+  });
+
+  it("toggles explanatory comments in generated preview output", async () => {
+    render(
+      <ConfigEditor
+        locale="en"
+        dictionary={getDictionary("en")}
+        initialDraft={createSampleDraft()}
+        initialPreview={createPreview("en")}
+        initialUnsupportedToml=""
+      />,
+    );
+
+    expect(
+      screen.getByText((content) => content.includes("# Model: Default session model.")),
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getByRole("checkbox", { name: /include explanatory comments/i }),
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText((content) => content.includes("# Model: Default session model.")),
+      ).not.toBeInTheDocument();
+      expect(window.localStorage.getItem("codex-config-viewer-state:v1")).toContain(
+        '"includeComments":false',
       );
     });
   });

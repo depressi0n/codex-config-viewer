@@ -9,6 +9,7 @@ import {
   SAMPLE_REFERENCE_URL,
   SAMPLE_REVIEWED_ON,
 } from "@/lib/config/defaults";
+import { addConfigComments } from "@/lib/config/comments";
 import {
   compactStringList,
   countFragmentNodes,
@@ -28,6 +29,7 @@ import type {
   ConfigParseErrorShape,
   ConfigParseWarning,
   GenerateConfigResponse,
+  GenerateConfigOptions,
   KeyValueItem,
   McpServerDraft,
   ModelProviderDraft,
@@ -698,6 +700,7 @@ export function parseConfigToml(toml: string): ParseConfigResponse {
 export function generateConfigToml(
   draft: ConfigDraft,
   unsupportedToml = "",
+  options: GenerateConfigOptions = {},
 ): GenerateConfigResponse {
   const warnings: ConfigParseWarning[] = [];
   const supported = buildSupportedTomlObject(draft, warnings);
@@ -709,12 +712,14 @@ export function generateConfigToml(
 
   const merged = pruneEmptyObjects(deepMerge(base, supported));
   const normalized = isPlainObject(merged) ? merged : {};
+  const generatedToml =
+    Object.keys(normalized).length > 0 ? `${stringify(normalized).trim()}\n` : "";
+  const finalToml = options.includeComments
+    ? addConfigComments(generatedToml, options.locale ?? "en")
+    : generatedToml;
 
   return {
-    toml:
-      Object.keys(normalized).length > 0
-        ? addReferenceHeader(`${stringify(normalized).trim()}\n`)
-        : addReferenceHeader(""),
+    toml: addReferenceHeader(finalToml),
     warnings,
   };
 }
@@ -734,9 +739,10 @@ export function safelyParseConfigToml(
 export function safelyGenerateConfigToml(
   draft: ConfigDraft,
   unsupportedToml = "",
+  options: GenerateConfigOptions = {},
 ): GenerateConfigResponse | { error: ConfigParseErrorShape } {
   try {
-    return generateConfigToml(draft, unsupportedToml);
+    return generateConfigToml(draft, unsupportedToml, options);
   } catch (error) {
     return {
       error: formatTomlError(error),
@@ -744,8 +750,8 @@ export function safelyGenerateConfigToml(
   }
 }
 
-export function createSampleToml(): string {
-  return generateConfigToml(createSampleDraft()).toml;
+export function createSampleToml(options: GenerateConfigOptions = {}): string {
+  return generateConfigToml(createSampleDraft(), "", options).toml;
 }
 
 function addReferenceHeader(toml: string): string {

@@ -46,6 +46,9 @@ export const enDictionary: DictionaryShape = {
       description: "Preview updates from the parse/generate API and matches download output.",
       empty: "Generated TOML preview will appear here.",
       warnings: "Warnings",
+      includeCommentsLabel: "Include explanatory comments",
+      includeCommentsHint:
+        "Adds human-readable descriptions above supported config items in preview, copy, and download output.",
     },
     advanced: {
       title: "Advanced unsupported TOML",
@@ -233,6 +236,8 @@ export const enDictionary: DictionaryShape = {
       "Bearer token env var",
       "Environment variable used for Authorization: Bearer.",
     ],
+    mcpEnabled: ["Enabled", "Whether this MCP server should be enabled."],
+    mcpRequired: ["Required", "Whether Codex should treat this MCP server as required."],
     startupTimeoutSec: ["Startup timeout (sec)", "Startup timeout in seconds."],
     toolTimeoutSec: ["Tool timeout (sec)", "Default MCP tool timeout in seconds."],
     enabledTools: ["Enabled tools", "Allow-list of tools."],

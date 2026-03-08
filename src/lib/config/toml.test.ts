@@ -97,4 +97,20 @@ describe("config TOML transforms", () => {
     expect(parsed.draft.shellEnvironmentPolicy.inherit).toBe("core");
     expect(parsed.draft.sandboxWorkspaceWrite.networkAccess).toBe(true);
   });
+
+  it("can include localized explanatory comments when requested", () => {
+    const withComments = generateConfigToml(createSampleDraft(), "", {
+      includeComments: true,
+      locale: "en",
+    });
+    const withoutComments = generateConfigToml(createSampleDraft(), "", {
+      includeComments: false,
+      locale: "en",
+    });
+
+    expect(withComments.toml).toContain("# General: Core model, approval, auth, and UI behavior.");
+    expect(withComments.toml).toContain("# Model: Default session model.");
+    expect(withComments.toml).toContain("# History: Compaction and persistence controls.");
+    expect(withoutComments.toml).not.toContain("# Model: Default session model.");
+  });
 });
