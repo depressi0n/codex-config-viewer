@@ -19,9 +19,11 @@ import {
   createEmptyModelProvider,
   createEmptyProfile,
   createEmptyProject,
+  REPOSITORY_URL,
   SAMPLE_REFERENCE_URL,
   createSampleDraft,
   SAMPLE_REVIEWED_ON,
+  VERCEL_DEPLOY_URL,
 } from "@/lib/config/defaults";
 import {
   APPROVAL_POLICY_OPTIONS,
@@ -420,6 +422,14 @@ export function ConfigEditor({
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-3">
+              <a
+                className={primaryButtonClassName}
+                href={VERCEL_DEPLOY_URL}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {dictionary.app.actions.deployVercel}
+              </a>
               <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200">
                 <span className="mr-2 text-slate-400">{dictionary.app.language.label}</span>
                 <Link
@@ -1991,6 +2001,32 @@ export function ConfigEditor({
 
           <aside className="h-fit space-y-4 xl:sticky xl:top-4">
             <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-4 backdrop-blur">
+              <div className="mb-4 rounded-2xl border border-sky-400/20 bg-sky-500/10 p-4">
+                <div className="text-sm font-semibold text-sky-100">
+                  {dictionary.app.deploy.label}
+                </div>
+                <p className="mt-1 text-sm leading-6 text-sky-50/85">
+                  {dictionary.app.deploy.description}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <a
+                    className={primaryButtonClassName}
+                    href={VERCEL_DEPLOY_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {dictionary.app.actions.deployVercel}
+                  </a>
+                  <a
+                    className={secondaryButtonClassName}
+                    href={REPOSITORY_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    GitHub
+                  </a>
+                </div>
+              </div>
               <div className="flex flex-wrap gap-3">
                 <button
                   type="button"

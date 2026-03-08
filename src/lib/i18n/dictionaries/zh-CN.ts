@@ -11,6 +11,7 @@ export const zhCnDictionary: DictionaryShape = {
       resetSample: "重置为 sample",
       copyToml: "复制 TOML",
       downloadToml: "下载 config.toml",
+      deployVercel: "一键部署到 Vercel",
       addItem: "新增",
       remove: "删除",
       generating: "正在生成预览…",
@@ -26,6 +27,11 @@ export const zhCnDictionary: DictionaryShape = {
       label: "参考来源",
       source: "官方 sample config",
       declaredAt: "声明日期",
+    },
+    deploy: {
+      label: "一键部署",
+      description:
+        "直接从当前公开 GitHub 仓库拉起 Vercel 导入流程。当前应用不需要额外环境变量即可部署。",
     },
     preview: {
       title: "生成的 TOML",

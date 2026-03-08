@@ -12,11 +12,27 @@
 
 - 官方参考链接：[https://developers.openai.com/codex/config-sample/](https://developers.openai.com/codex/config-sample/)
 - 当前项目声明基于该 sample 的审核时间：`2026-03-08`
+- Vercel Deploy Button 参考文档：[Working with the Deploy Button](https://vercel.com/docs/deployments/deploy-button)
 
 说明：
 
 - 页面 UI 中已展示参考链接与声明日期
 - 生成的 `config.toml` 文件头部也会自动写入参考链接与声明日期注释
+
+## 一键部署到 Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdepressi0n%2Fcodex-config-viewer&project-name=codex-config-viewer&repository-name=codex-config-viewer)
+
+如果你更喜欢直接打开部署入口，也可以访问：
+
+- [Deploy with Vercel](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdepressi0n%2Fcodex-config-viewer&project-name=codex-config-viewer&repository-name=codex-config-viewer)
+
+当前仓库的一键部署配置说明：
+
+- 源仓库：`https://github.com/depressi0n/codex-config-viewer`
+- Vercel 会从这个公开仓库拉起导入流程
+- 当前项目不需要额外环境变量即可完成部署
+- 由于仓库包含 `pnpm-lock.yaml` 且使用 `Next.js`，Vercel 会自动识别框架与安装命令
 
 ## 技术栈
 

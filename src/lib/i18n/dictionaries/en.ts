@@ -12,6 +12,7 @@ export const enDictionary: DictionaryShape = {
       resetSample: "Reset to sample",
       copyToml: "Copy TOML",
       downloadToml: "Download config.toml",
+      deployVercel: "Deploy with Vercel",
       addItem: "Add",
       remove: "Remove",
       generating: "Generating preview…",
@@ -27,6 +28,11 @@ export const enDictionary: DictionaryShape = {
       label: "Reference",
       source: "Official sample config",
       declaredAt: "Declared date",
+    },
+    deploy: {
+      label: "One-click deploy",
+      description:
+        "Launch the Vercel import flow from this public GitHub repository. No extra environment variables are required for the current app.",
     },
     preview: {
       title: "Generated TOML",

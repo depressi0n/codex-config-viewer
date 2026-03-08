@@ -7,6 +7,7 @@ export interface DictionaryShape {
     actions: Record<string, string>;
     language: Record<string, string>;
     reference: Record<string, string>;
+    deploy: Record<string, string>;
     preview: Record<string, string>;
     advanced: Record<string, string>;
     import: Record<string, string>;
