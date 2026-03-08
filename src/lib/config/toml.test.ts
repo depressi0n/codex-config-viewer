@@ -6,6 +6,7 @@ import {
 import {
   generateConfigToml,
   parseConfigToml,
+  parseConfigTomlWithLocale,
   safelyParseConfigToml,
 } from "@/lib/config/toml";
 
@@ -112,5 +113,36 @@ describe("config TOML transforms", () => {
     expect(withComments.toml).toContain("# Model: Default session model.");
     expect(withComments.toml).toContain("# History: Compaction and persistence controls.");
     expect(withoutComments.toml).not.toContain("# Model: Default session model.");
+  });
+
+  it("returns validation issues from generated draft output", () => {
+    const draft = createSampleDraft();
+    draft.general.activeProfile = "missing";
+
+    const generated = generateConfigToml(draft, "", { locale: "en" });
+
+    expect(
+      generated.validationIssues.some(
+        (issue) => issue.path === "general.activeProfile" && issue.severity === "error",
+      ),
+    ).toBe(true);
+  });
+
+  it("returns validation issues when parsing imported TOML", () => {
+    const parsed = parseConfigTomlWithLocale(
+      ['profile = "missing"', "", "[history]", "max_bytes = -1"].join("\n"),
+      "en",
+    );
+
+    expect(
+      parsed.validationIssues.some(
+        (issue) => issue.path === "general.activeProfile" && issue.severity === "error",
+      ),
+    ).toBe(true);
+    expect(
+      parsed.validationIssues.some(
+        (issue) => issue.path === "history.maxBytes" && issue.severity === "error",
+      ),
+    ).toBe(true);
   });
 });

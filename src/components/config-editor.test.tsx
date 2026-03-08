@@ -199,4 +199,26 @@ describe("ConfigEditor", () => {
       );
     });
   });
+
+  it("shows validation issues for an invalid draft", async () => {
+    const invalidDraft = createSampleDraft();
+    invalidDraft.general.activeProfile = "missing-profile";
+    invalidDraft.history.maxBytes = "-1";
+
+    render(
+      <ConfigEditor
+        locale="en"
+        dictionary={getDictionary("en")}
+        initialDraft={invalidDraft}
+        initialPreview={generateConfigToml(invalidDraft, "", { locale: "en" }).toml}
+        initialUnsupportedToml=""
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Validation")).toBeInTheDocument();
+      expect(screen.getByText(/missing profile/i)).toBeInTheDocument();
+      expect(screen.getByText(/greater than 0/i)).toBeInTheDocument();
+    });
+  });
 });

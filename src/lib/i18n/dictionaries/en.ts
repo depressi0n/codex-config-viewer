@@ -50,6 +50,28 @@ export const enDictionary: DictionaryShape = {
       includeCommentsHint:
         "Adds human-readable descriptions above supported config items in preview, copy, and download output.",
     },
+    validation: {
+      title: "Validation",
+      description:
+        "Checks the current draft for missing references, duplicate identifiers, and invalid values.",
+      errors: "Errors",
+      warnings: "Validation warnings",
+      path: "Path",
+      empty: "No validation issues detected.",
+      fieldRequired: "{{field}} is required.",
+      fieldRequiredWhen: "{{field}} is required when {{condition}}.",
+      duplicateValue: "{{field}} must be unique. Duplicate value: {{value}}.",
+      missingReference: "{{field}} references a missing {{target}}: {{value}}.",
+      nonNegativeNumber: "{{field}} must be 0 or greater.",
+      positiveNumber: "{{field}} must be greater than 0.",
+      duplicateKey: "{{field}} contains duplicate key: {{value}}.",
+      missingDefaultModel:
+        "Set {{field}} or {{alternateField}} so Codex has a default configuration.",
+      profileTarget: "profile",
+      rowHasContent: "the row already contains other values",
+      fieldIsSet: "{{field}} is set",
+      transportIs: "Transport is {{value}}",
+    },
     advanced: {
       title: "Advanced unsupported TOML",
       description:

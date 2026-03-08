@@ -10,6 +10,7 @@ export interface DictionaryShape {
     reference: Record<string, string>;
     deploy: Record<string, string>;
     preview: Record<string, string>;
+    validation: Record<string, string>;
     advanced: Record<string, string>;
     import: Record<string, string>;
     feedback: Record<string, string>;

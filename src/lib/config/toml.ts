@@ -10,6 +10,7 @@ import {
   SAMPLE_REVIEWED_ON,
 } from "@/lib/config/defaults";
 import { addConfigComments } from "@/lib/config/comments";
+import { validateConfigDraft } from "@/lib/config/validation";
 import {
   compactStringList,
   countFragmentNodes,
@@ -675,9 +676,17 @@ export function extractUnsupportedFragment(value: TomlObject): TomlObject {
 }
 
 export function parseConfigToml(toml: string): ParseConfigResponse {
+  return parseConfigTomlWithLocale(toml);
+}
+
+export function parseConfigTomlWithLocale(
+  toml: string,
+  locale: GenerateConfigOptions["locale"] = "en",
+): ParseConfigResponse {
   const warnings: ConfigParseWarning[] = [];
   const parsed = parse(toml) as TomlObject;
   const draft = parseSupportedTomlObject(parsed);
+  const validationIssues = validateConfigDraft(draft, locale ?? "en");
   const unsupportedFragment = extractUnsupportedFragment(parsed);
   const unsupportedToml = Object.keys(unsupportedFragment).length
     ? `${stringify(unsupportedFragment).trim()}\n`
@@ -694,6 +703,7 @@ export function parseConfigToml(toml: string): ParseConfigResponse {
     draft,
     unsupportedToml,
     warnings,
+    validationIssues,
   };
 }
 
@@ -703,6 +713,7 @@ export function generateConfigToml(
   options: GenerateConfigOptions = {},
 ): GenerateConfigResponse {
   const warnings: ConfigParseWarning[] = [];
+  const validationIssues = validateConfigDraft(draft, options.locale ?? "en");
   const supported = buildSupportedTomlObject(draft, warnings);
   let base: TomlObject = {};
 
@@ -721,14 +732,16 @@ export function generateConfigToml(
   return {
     toml: addReferenceHeader(finalToml),
     warnings,
+    validationIssues,
   };
 }
 
 export function safelyParseConfigToml(
   toml: string,
+  locale: GenerateConfigOptions["locale"] = "en",
 ): ParseConfigResponse | { error: ConfigParseErrorShape } {
   try {
-    return parseConfigToml(toml);
+    return parseConfigTomlWithLocale(toml, locale);
   } catch (error) {
     return {
       error: formatTomlError(error),

@@ -42,7 +42,12 @@ import {
   TRUST_LEVEL_OPTIONS,
   WEB_SEARCH_OPTIONS,
 } from "@/lib/config/metadata";
-import type { ConfigDraft, GenerateConfigResponse, ParseConfigResponse } from "@/lib/config/types";
+import type {
+  ConfigDraft,
+  ConfigValidationIssue,
+  GenerateConfigResponse,
+  ParseConfigResponse,
+} from "@/lib/config/types";
 import type { Dictionary, Locale } from "@/lib/i18n/config";
 import { getAlternateLocale } from "@/lib/i18n/config";
 
@@ -92,6 +97,7 @@ export function ConfigEditor({
   const [includeComments, setIncludeComments] = useState(true);
   const [preview, setPreview] = useState(initialPreview);
   const [warnings, setWarnings] = useState<string[]>([]);
+  const [validationIssues, setValidationIssues] = useState<ConfigValidationIssue[]>([]);
   const [status, setStatus] = useState<StatusMessage>({
     tone: "neutral",
     message: dictionary.app.feedback.idle,
@@ -184,6 +190,7 @@ export function ConfigEditor({
 
         setPreview(data.toml);
         setWarnings((data.warnings || []).map((warning) => warning.message));
+        setValidationIssues(data.validationIssues || []);
         setStatus({
           tone: "neutral",
           message: dictionary.app.actions.idle,
@@ -333,7 +340,7 @@ export function ConfigEditor({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ toml }),
+          body: JSON.stringify({ toml, locale }),
         });
         const data = (await response.json()) as ParseConfigResponse & {
           error?: { message: string; line?: number; column?: number };
@@ -349,6 +356,7 @@ export function ConfigEditor({
         setDraft(data.draft);
         setUnsupportedToml(data.unsupportedToml);
         setWarnings((data.warnings || []).map((warning) => warning.message));
+        setValidationIssues(data.validationIssues || []);
         setStatus({
           tone: "success",
           message: dictionary.app.import.success,
@@ -417,6 +425,8 @@ export function ConfigEditor({
   const sharedOptionBlank = (
     <option value="">{dictionary.app.common.blankOption}</option>
   );
+  const validationErrors = validationIssues.filter((issue) => issue.severity === "error");
+  const validationWarnings = validationIssues.filter((issue) => issue.severity === "warning");
 
   return (
     <div className="min-h-screen">
@@ -2154,6 +2164,58 @@ export function ConfigEditor({
                     </p>
                   </div>
                 </label>
+              </div>
+              <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <div className="mb-3">
+                  <div className="text-sm font-semibold text-white">
+                    {dictionary.app.validation.title}
+                  </div>
+                  <p className="mt-1 text-xs leading-5 text-slate-400">
+                    {dictionary.app.validation.description}
+                  </p>
+                </div>
+                {validationIssues.length === 0 ? (
+                  <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">
+                    {dictionary.app.validation.empty}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {validationErrors.length > 0 ? (
+                      <div className="rounded-2xl border border-rose-400/20 bg-rose-500/10 p-3">
+                        <div className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-rose-200">
+                          {dictionary.app.validation.errors} ({validationErrors.length})
+                        </div>
+                        <ul className="space-y-2 text-sm text-rose-100">
+                          {validationErrors.map((issue, index) => (
+                            <li key={`${issue.path}-${index}`}>
+                              <div>{issue.message}</div>
+                              <div className="mt-1 text-xs text-rose-100/70">
+                                {dictionary.app.validation.path}: <code>{issue.path}</code>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {validationWarnings.length > 0 ? (
+                      <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-3">
+                        <div className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-amber-200">
+                          {dictionary.app.validation.warnings} ({validationWarnings.length})
+                        </div>
+                        <ul className="space-y-2 text-sm text-amber-100">
+                          {validationWarnings.map((issue, index) => (
+                            <li key={`${issue.path}-${index}`}>
+                              <div>{issue.message}</div>
+                              <div className="mt-1 text-xs text-amber-100/70">
+                                {dictionary.app.validation.path}: <code>{issue.path}</code>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </div>
+                )}
               </div>
               {warnings.length > 0 ? (
                 <div className="mb-4 rounded-2xl border border-amber-400/20 bg-amber-500/10 p-3">

@@ -178,6 +178,12 @@ export interface ConfigParseWarning {
   message: string;
 }
 
+export interface ConfigValidationIssue {
+  severity: "error" | "warning";
+  path: string;
+  message: string;
+}
+
 export interface ConfigParseErrorShape {
   message: string;
   line?: number;
@@ -189,11 +195,13 @@ export interface ParseConfigResponse {
   draft: ConfigDraft;
   unsupportedToml: string;
   warnings: ConfigParseWarning[];
+  validationIssues: ConfigValidationIssue[];
 }
 
 export interface GenerateConfigResponse {
   toml: string;
   warnings: ConfigParseWarning[];
+  validationIssues: ConfigValidationIssue[];
 }
 
 export interface GenerateConfigOptions {

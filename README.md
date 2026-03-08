@@ -8,6 +8,7 @@
 - 导入已有 `config.toml` 并回填表单
 - 保留未支持字段到高级 TOML 区域
 - 支持为已覆盖配置项生成说明注释，并可一键开关
+- 支持配置校验，自动提示缺失引用、重复标识和无效数值
 - 实时生成、复制、下载 `config.toml`
 
 ## 参考来源
@@ -158,6 +159,13 @@ pnpm test
 - 该开关会同步影响右侧预览、复制结果和下载结果
 - 未支持的高级 TOML 片段仍按原语义保留，不额外自动补注释
 
+校验功能规则：
+
+- 预览区会单独显示 `Validation` / `配置校验` 面板
+- 会检查常见问题，例如缺失的 `active profile` 引用、重复的 provider/MCP/profile 标识、非法数字、以及 MCP transport 缺少必要字段
+- 校验分为 `Errors` 和 `Validation warnings`
+- 即使存在校验问题，仍然可以继续预览、复制和下载，便于逐步修正
+
 下载出的文件会附带头部注释，例如：
 
 ```toml
@@ -184,6 +192,7 @@ pnpm test
 - `draft`
 - `unsupportedToml`
 - `warnings`
+- `validationIssues`
 
 ### `POST /api/config/generate`
 
@@ -200,6 +209,7 @@ pnpm test
 
 - `toml`
 - `warnings`
+- `validationIssues`
 
 ## 当前实现边界
 
