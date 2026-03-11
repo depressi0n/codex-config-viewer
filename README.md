@@ -71,6 +71,28 @@ pnpm dev
 - 中文：`/zh-CN`
 - 英文：`/en`
 
+### 3. Windows 下双击启动
+
+如果你希望在 Windows 里直接双击启动，也可以使用仓库根目录下的：
+
+- `start_local.py`
+
+脚本行为：
+
+- 自动检查 `Node.js`
+- 自动检查 `pnpm` / `npm`
+- 依赖缺失时执行 `pnpm install --frozen-lockfile`
+- 启动本地开发服务器
+- 在 `http://localhost:3000` 可访问后自动打开浏览器
+
+使用方式：
+
+```bash
+python start_local.py
+```
+
+如果已经关联了 `.py` 文件，也可以直接在资源管理器中双击运行。
+
 ## 常用命令
 
 ```bash
