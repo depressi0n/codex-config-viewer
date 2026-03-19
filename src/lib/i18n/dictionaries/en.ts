@@ -5,12 +5,12 @@ export const enDictionary: DictionaryShape = {
     title: "Codex Config Viewer",
     subtitle:
       "A bilingual visual editor for the official Codex config sample, with TOML import, preview, and export.",
-    badge: "Reviewed against official sample on 2026-03-08",
+    badge: "Reviewed against official sample on 2026-03-19",
     sampleLabel: "Official sample snapshot",
     recommended: {
       label: "Recommended starter preset",
       description:
-        "An app-maintained preset built on the 2026-03-08 official sample for day-to-day coding: workspace-write sandbox, on-failure approvals, core shell inheritance, and live web search.",
+        "An app-maintained preset built on the 2026-03-19 official sample for day-to-day coding: workspace-write sandbox, on-failure approvals, core shell inheritance, and live web search.",
       note: "This preset is opinionated and is not part of the official sample.",
     },
     actions: {
@@ -161,10 +161,14 @@ export const enDictionary: DictionaryShape = {
     reviewModel: ["Review model", "Optional override used by /review."],
     modelProvider: ["Model provider", "Provider ID selected from [model_providers]."],
     approvalPolicy: ["Approval policy", "When Codex requests approval for tool actions."],
+    allowLoginShell: [
+      "Allow login shell",
+      "Allow login-shell semantics for commands when needed.",
+    ],
     sandboxMode: ["Sandbox mode", "Filesystem and network access policy."],
     serviceTier: ["Service tier", "Preferred service tier when supported."],
-    webSearch: ["Web search", "Use cached or live web search results."],
-    activeProfile: ["Active profile", "Name of the applied profile."],
+    webSearch: ["Web search", "Use disabled, cached, or live web search results."],
+    activeProfile: ["Profile", "Name of the applied profile."],
     modelReasoningEffort: ["Reasoning effort", "Reasoning effort for normal mode."],
     planModeReasoningEffort: [
       "Plan mode reasoning",
@@ -180,6 +184,7 @@ export const enDictionary: DictionaryShape = {
       "Where CLI login credentials should be stored.",
     ],
     chatgptBaseUrl: ["ChatGPT base URL", "Base URL for the ChatGPT auth flow."],
+    openaiBaseUrl: ["OpenAI base URL", "Optional override for API traffic."],
     forcedChatgptWorkspaceId: [
       "Forced ChatGPT workspace",
       "Optional workspace restriction for ChatGPT login.",
@@ -192,6 +197,27 @@ export const enDictionary: DictionaryShape = {
       "MCP OAuth credential store",
       "Preferred store for MCP OAuth credentials.",
     ],
+    mcpOauthCallbackPort: [
+      "MCP OAuth callback port",
+      "Local port used for MCP OAuth callback redirects.",
+    ],
+    mcpOauthCallbackUrl: [
+      "MCP OAuth callback URL",
+      "Optional full callback URL override for MCP OAuth.",
+    ],
+    projectDocMaxBytes: [
+      "Project doc max bytes",
+      "Maximum size of project documentation loaded into context.",
+    ],
+    projectDocFallbackFilenames: [
+      "Project doc fallback filenames",
+      "Fallback filenames to check when no primary project doc is found.",
+    ],
+    projectRootMarkers: [
+      "Project root markers",
+      "Extra filenames or directories used to detect project roots.",
+    ],
+    notify: ["Notify command", "Command array run after Codex finishes."],
     fileOpener: ["File opener", "URI scheme used for clickable citations."],
     hideAgentReasoning: ["Hide agent reasoning", "Suppress reasoning events from output."],
     showRawAgentReasoning: [
@@ -201,6 +227,14 @@ export const enDictionary: DictionaryShape = {
     disablePasteBurst: [
       "Disable paste burst",
       "Turn off burst-paste detection in the TUI.",
+    ],
+    windowsWslSetupAcknowledged: [
+      "WSL setup acknowledged",
+      "Track that the Windows WSL setup notice has been acknowledged.",
+    ],
+    checkForUpdateOnStartup: [
+      "Check for updates on startup",
+      "Allow Codex to check for app updates when it starts.",
     ],
     suppressUnstableFeaturesWarning: [
       "Suppress unstable feature warning",
@@ -218,13 +252,27 @@ export const enDictionary: DictionaryShape = {
     ],
     writableRoots: ["Writable roots", "Extra writable roots beyond the current workspace."],
     networkAccess: ["Network access", "Allow outbound network access in workspace-write mode."],
+    excludeTmpdirEnvVar: [
+      "Exclude TMPDIR env var",
+      "Do not pass TMPDIR through in workspace-write mode.",
+    ],
+    excludeSlashTmp: [
+      "Exclude /tmp",
+      "Avoid mapping /tmp into the writable sandbox roots.",
+    ],
     shellInherit: ["Inherit", "Which environment baseline to inherit."],
     ignoreDefaultExcludes: [
       "Ignore default excludes",
       "Disable the built-in shell environment exclusion list.",
     ],
     shellExclude: ["Exclude", "Environment variables to exclude."],
+    shellSet: ["Set", "Environment variables that should be set explicitly."],
     shellIncludeOnly: ["Include only", "Explicit allow-list of environment variables."],
+    experimentalUseProfile: [
+      "Experimental use profile",
+      "Let Codex source your shell profile before command execution.",
+    ],
+    viewImage: ["View image", "Enable image-view tooling when supported."],
     providerId: ["Provider id", "Table key inside [model_providers]."],
     providerName: ["Provider name", "Friendly label shown in UI or docs."],
     baseUrl: ["Base URL", "Base URL for the provider or MCP endpoint."],
@@ -289,6 +337,7 @@ export const enDictionary: DictionaryShape = {
       "danger-full-access": "Danger full access",
     },
     webSearch: {
+      disabled: "Disabled",
       cached: "Cached",
       live: "Live",
     },

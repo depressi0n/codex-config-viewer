@@ -153,6 +153,12 @@ export function validateConfigDraft(
   const positiveNumber = (field: string) =>
     interpolate(validationText.positiveNumber, { field });
 
+  for (const duplicate of findDuplicateKeys(draft.shellEnvironmentPolicy.set)) {
+    issues.push(
+      createIssue("warning", "shellEnvironmentPolicy.set", duplicateKey(fieldLabel("shellSet"), duplicate)),
+    );
+  }
+
   if (!draft.general.model.trim() && !draft.general.activeProfile.trim()) {
     issues.push(
       createIssue(
@@ -438,6 +444,34 @@ export function validateConfigDraft(
   if (historyMaxBytes !== null && (!Number.isFinite(historyMaxBytes) || historyMaxBytes <= 0)) {
     issues.push(
       createIssue("error", "history.maxBytes", positiveNumber(fieldLabel("historyMaxBytes"))),
+    );
+  }
+
+  const projectDocMaxBytes = parseIntegerLike(draft.general.projectDocMaxBytes);
+  if (
+    projectDocMaxBytes !== null &&
+    (!Number.isFinite(projectDocMaxBytes) || projectDocMaxBytes <= 0)
+  ) {
+    issues.push(
+      createIssue(
+        "error",
+        "general.projectDocMaxBytes",
+        positiveNumber(fieldLabel("projectDocMaxBytes")),
+      ),
+    );
+  }
+
+  const mcpOauthCallbackPort = parseIntegerLike(draft.general.mcpOauthCallbackPort);
+  if (
+    mcpOauthCallbackPort !== null &&
+    (!Number.isFinite(mcpOauthCallbackPort) || mcpOauthCallbackPort <= 0)
+  ) {
+    issues.push(
+      createIssue(
+        "error",
+        "general.mcpOauthCallbackPort",
+        positiveNumber(fieldLabel("mcpOauthCallbackPort")),
+      ),
     );
   }
 

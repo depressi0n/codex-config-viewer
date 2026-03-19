@@ -84,6 +84,41 @@ function boolInputClass(checked: boolean) {
   return checked ? "bg-emerald-500/15 border-emerald-400/40" : "bg-white/[0.03] border-white/10";
 }
 
+function mergeDraftWithDefaults(base: ConfigDraft, incoming: Partial<ConfigDraft>): ConfigDraft {
+  return {
+    ...base,
+    ...incoming,
+    general: {
+      ...base.general,
+      ...incoming.general,
+    },
+    history: {
+      ...base.history,
+      ...incoming.history,
+    },
+    features: {
+      ...base.features,
+      ...incoming.features,
+    },
+    sandboxWorkspaceWrite: {
+      ...base.sandboxWorkspaceWrite,
+      ...incoming.sandboxWorkspaceWrite,
+    },
+    shellEnvironmentPolicy: {
+      ...base.shellEnvironmentPolicy,
+      ...incoming.shellEnvironmentPolicy,
+    },
+    tools: {
+      ...base.tools,
+      ...incoming.tools,
+    },
+    modelProviders: incoming.modelProviders ?? base.modelProviders,
+    mcpServers: incoming.mcpServers ?? base.mcpServers,
+    profiles: incoming.profiles ?? base.profiles,
+    projects: incoming.projects ?? base.projects,
+  };
+}
+
 export function ConfigEditor({
   locale,
   dictionary,
@@ -127,7 +162,7 @@ export function ConfigEditor({
       };
 
       if (parsed.draft) {
-        setDraft(parsed.draft);
+        setDraft(mergeDraftWithDefaults(initialDraft, parsed.draft));
       }
 
       if (typeof parsed.unsupportedToml === "string") {
@@ -144,7 +179,7 @@ export function ConfigEditor({
     } catch {
       window.localStorage.removeItem(STORAGE_KEY);
     }
-  }, []);
+  }, [initialDraft]);
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -401,9 +436,14 @@ export function ConfigEditor({
     });
   }
 
-  function applyPreset(nextDraft: ConfigDraft, message: string, nextPreview?: string) {
+  function applyPreset(
+    nextDraft: ConfigDraft,
+    message: string,
+    nextPreview?: string,
+    nextUnsupportedToml = "",
+  ) {
     setDraft(nextDraft);
-    setUnsupportedToml("");
+    setUnsupportedToml(nextUnsupportedToml);
     setWarnings([]);
     if (typeof nextPreview === "string") {
       setPreview(nextPreview);
@@ -415,11 +455,16 @@ export function ConfigEditor({
   }
 
   function applyRecommendedPreset() {
-    applyPreset(createRecommendedDraft(), dictionary.app.feedback.recommendedApplied);
+    applyPreset(
+      createRecommendedDraft(),
+      dictionary.app.feedback.recommendedApplied,
+      undefined,
+      initialUnsupportedToml,
+    );
   }
 
   function resetToSample() {
-    applyPreset(createSampleDraft(), dictionary.app.sampleLabel, initialPreview);
+    applyPreset(createSampleDraft(), dictionary.app.sampleLabel, initialPreview, initialUnsupportedToml);
   }
 
   const sharedOptionBlank = (
@@ -689,6 +734,25 @@ export function ConfigEditor({
                     ))}
                   </select>
                 </Field>
+                <Field {...fieldText("mcpOauthCallbackPort")}>
+                  <input
+                    className={inputClassName}
+                    inputMode="numeric"
+                    value={draft.general.mcpOauthCallbackPort}
+                    onChange={(event) =>
+                      updateGeneral("mcpOauthCallbackPort", event.target.value)
+                    }
+                  />
+                </Field>
+                <Field {...fieldText("mcpOauthCallbackUrl")}>
+                  <input
+                    className={inputClassName}
+                    value={draft.general.mcpOauthCallbackUrl}
+                    onChange={(event) =>
+                      updateGeneral("mcpOauthCallbackUrl", event.target.value)
+                    }
+                  />
+                </Field>
                 <Field {...fieldText("forcedLoginMethod")}>
                   <select
                     className={inputClassName}
@@ -713,6 +777,13 @@ export function ConfigEditor({
                     className={inputClassName}
                     value={draft.general.chatgptBaseUrl}
                     onChange={(event) => updateGeneral("chatgptBaseUrl", event.target.value)}
+                  />
+                </Field>
+                <Field {...fieldText("openaiBaseUrl")}>
+                  <input
+                    className={inputClassName}
+                    value={draft.general.openaiBaseUrl}
+                    onChange={(event) => updateGeneral("openaiBaseUrl", event.target.value)}
                   />
                 </Field>
                 <Field {...fieldText("forcedChatgptWorkspaceId")}>
@@ -743,13 +814,55 @@ export function ConfigEditor({
                     ))}
                   </select>
                 </Field>
+                <Field {...fieldText("projectDocMaxBytes")}>
+                  <input
+                    className={inputClassName}
+                    inputMode="numeric"
+                    value={draft.general.projectDocMaxBytes}
+                    onChange={(event) => updateGeneral("projectDocMaxBytes", event.target.value)}
+                  />
+                </Field>
               </div>
+
+              <StringListEditor
+                {...fieldText("projectDocFallbackFilenames")}
+                values={draft.general.projectDocFallbackFilenames}
+                onChange={(values) => updateGeneral("projectDocFallbackFilenames", values)}
+                addLabel={dictionary.app.actions.addItem}
+                removeLabel={dictionary.app.actions.remove}
+                emptyLabel={dictionary.app.emptyStates.list}
+                placeholder="AGENTS.md"
+              />
+              <StringListEditor
+                {...fieldText("projectRootMarkers")}
+                values={draft.general.projectRootMarkers}
+                onChange={(values) => updateGeneral("projectRootMarkers", values)}
+                addLabel={dictionary.app.actions.addItem}
+                removeLabel={dictionary.app.actions.remove}
+                emptyLabel={dictionary.app.emptyStates.list}
+                placeholder=".git"
+              />
+              <StringListEditor
+                {...fieldText("notify")}
+                values={draft.general.notify}
+                onChange={(values) => updateGeneral("notify", values)}
+                addLabel={dictionary.app.actions.addItem}
+                removeLabel={dictionary.app.actions.remove}
+                emptyLabel={dictionary.app.emptyStates.list}
+                placeholder="terminal-notifier"
+              />
 
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 {([
+                  ["allowLoginShell", draft.general.allowLoginShell],
                   ["hideAgentReasoning", draft.general.hideAgentReasoning],
                   ["showRawAgentReasoning", draft.general.showRawAgentReasoning],
                   ["disablePasteBurst", draft.general.disablePasteBurst],
+                  [
+                    "windowsWslSetupAcknowledged",
+                    draft.general.windowsWslSetupAcknowledged,
+                  ],
+                  ["checkForUpdateOnStartup", draft.general.checkForUpdateOnStartup],
                   [
                     "suppressUnstableFeaturesWarning",
                     draft.general.suppressUnstableFeaturesWarning,
@@ -889,6 +1002,37 @@ export function ConfigEditor({
                   </p>
                 </div>
               </label>
+              <div className="grid gap-3 md:grid-cols-2">
+                {([
+                  [
+                    "excludeTmpdirEnvVar",
+                    draft.sandboxWorkspaceWrite.excludeTmpdirEnvVar,
+                  ],
+                  ["excludeSlashTmp", draft.sandboxWorkspaceWrite.excludeSlashTmp],
+                ] as const).map(([key, checked]) => {
+                  const { label, hint } = fieldText(key);
+
+                  return (
+                    <label
+                      key={key}
+                      className={`flex items-start gap-3 rounded-2xl border px-4 py-3 ${boolInputClass(checked)}`}
+                    >
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 accent-emerald-400"
+                        checked={checked}
+                        onChange={(event) =>
+                          updateSandboxWorkspaceWrite(key, event.target.checked)
+                        }
+                      />
+                      <div>
+                        <div className="text-sm font-medium text-slate-200">{label}</div>
+                        <p className="mt-1 text-xs leading-5 text-slate-400">{hint}</p>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
             </SectionCard>
 
             <SectionCard
@@ -949,6 +1093,18 @@ export function ConfigEditor({
                 emptyLabel={dictionary.app.emptyStates.list}
                 placeholder="MY_ENV_VAR"
               />
+              <KeyValueListEditor
+                {...fieldText("shellSet")}
+                values={draft.shellEnvironmentPolicy.set}
+                onChange={(values) => updateShellEnvironmentPolicy("set", values)}
+                addLabel={dictionary.app.actions.addItem}
+                removeLabel={dictionary.app.actions.remove}
+                emptyLabel={dictionary.app.emptyStates.pairs}
+                keyLabel={dictionary.app.common.key}
+                valueLabel={dictionary.app.common.value}
+                keyPlaceholder="OPENAI_API_KEY"
+                valuePlaceholder="sk-..."
+              />
               <StringListEditor
                 {...fieldText("shellIncludeOnly")}
                 values={draft.shellEnvironmentPolicy.includeOnly}
@@ -958,6 +1114,29 @@ export function ConfigEditor({
                 emptyLabel={dictionary.app.emptyStates.list}
                 placeholder="OPENAI_API_KEY"
               />
+              <label
+                className={`flex items-start gap-3 rounded-2xl border px-4 py-3 ${boolInputClass(draft.shellEnvironmentPolicy.experimentalUseProfile)}`}
+              >
+                <input
+                  type="checkbox"
+                  className="mt-1 h-4 w-4 accent-emerald-400"
+                  checked={draft.shellEnvironmentPolicy.experimentalUseProfile}
+                  onChange={(event) =>
+                    updateShellEnvironmentPolicy(
+                      "experimentalUseProfile",
+                      event.target.checked,
+                    )
+                  }
+                />
+                <div>
+                  <div className="text-sm font-medium text-slate-200">
+                    {fieldText("experimentalUseProfile").label}
+                  </div>
+                  <p className="mt-1 text-xs leading-5 text-slate-400">
+                    {fieldText("experimentalUseProfile").hint}
+                  </p>
+                </div>
+              </label>
             </SectionCard>
 
             <SectionCard
@@ -985,6 +1164,24 @@ export function ConfigEditor({
                     ))}
                   </select>
                 </Field>
+                <label
+                  className={`flex items-start gap-3 rounded-2xl border px-4 py-3 ${boolInputClass(draft.tools.viewImage)}`}
+                >
+                  <input
+                    type="checkbox"
+                    className="mt-1 h-4 w-4 accent-emerald-400"
+                    checked={draft.tools.viewImage}
+                    onChange={(event) => updateTools("viewImage", event.target.checked)}
+                  />
+                  <div>
+                    <div className="text-sm font-medium text-slate-200">
+                      {fieldText("viewImage").label}
+                    </div>
+                    <p className="mt-1 text-xs leading-5 text-slate-400">
+                      {fieldText("viewImage").hint}
+                    </p>
+                  </div>
+                </label>
               </div>
             </SectionCard>
 

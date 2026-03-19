@@ -159,7 +159,9 @@ describe("ConfigEditor", () => {
       return;
     }
 
-    expect(within(sandboxSection).getByRole("checkbox")).toBeChecked();
+    expect(
+      within(sandboxSection).getByRole("checkbox", { name: /network access/i }),
+    ).toBeChecked();
 
     await waitFor(() => {
       expect(window.localStorage.getItem("codex-config-viewer-state:v1")).toContain(

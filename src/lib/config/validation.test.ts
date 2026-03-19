@@ -5,7 +5,13 @@ describe("config validation", () => {
   it("reports missing references, duplicate ids, and transport-specific requirements", () => {
     const draft = createSampleDraft();
     draft.general.activeProfile = "missing-profile";
+    draft.general.projectDocMaxBytes = "-1";
+    draft.general.mcpOauthCallbackPort = "0";
     draft.history.maxBytes = "-1";
+    draft.shellEnvironmentPolicy.set = [
+      { key: "FOO", value: "bar" },
+      { key: "FOO", value: "baz" },
+    ];
     draft.modelProviders = [
       {
         ...draft.modelProviders[0],
@@ -80,6 +86,30 @@ describe("config validation", () => {
           issue.severity === "error" &&
           issue.path === "history.maxBytes" &&
           issue.message.includes("greater than 0"),
+      ),
+    ).toBe(true);
+    expect(
+      issues.some(
+        (issue) =>
+          issue.severity === "error" &&
+          issue.path === "general.projectDocMaxBytes" &&
+          issue.message.includes("greater than 0"),
+      ),
+    ).toBe(true);
+    expect(
+      issues.some(
+        (issue) =>
+          issue.severity === "error" &&
+          issue.path === "general.mcpOauthCallbackPort" &&
+          issue.message.includes("greater than 0"),
+      ),
+    ).toBe(true);
+    expect(
+      issues.some(
+        (issue) =>
+          issue.severity === "warning" &&
+          issue.path === "shellEnvironmentPolicy.set" &&
+          issue.message.includes("duplicate key"),
       ),
     ).toBe(true);
   });

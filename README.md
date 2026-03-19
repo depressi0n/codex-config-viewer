@@ -14,7 +14,7 @@
 ## 参考来源
 
 - 官方参考链接：[https://developers.openai.com/codex/config-sample/](https://developers.openai.com/codex/config-sample/)
-- 当前项目声明基于该 sample 的审核时间：`2026-03-08`
+- 当前项目声明基于该 sample 的审核时间：`2026-03-19`
 - Vercel Deploy Button 参考文档：[Working with the Deploy Button](https://vercel.com/docs/deployments/deploy-button)
 
 说明：
@@ -118,13 +118,13 @@ pnpm test
 
 - `Apply recommended preset` / `应用推荐预设`
 
-当前推荐预设是本项目维护的非官方起步配置，基于 `2026-03-08` 审核的官方 sample 进行收敛，默认会应用这些关键值：
+当前推荐预设是本项目维护的非官方起步配置，基于 `2026-03-19` 审核的官方 sample 进行收敛，默认会应用这些关键值：
 
 - `approval_policy = "on-failure"`
 - `sandbox_mode = "workspace-write"`
 - `shell_environment_policy.inherit = "core"`
 - `sandbox_workspace_write.network_access = true`
-- `tools.web_search = "live"` 与 `web_search = "live"`
+- `web_search = "live"`
 
 ### 2. 通过表单编辑配置
 
@@ -166,6 +166,14 @@ pnpm test
 - 如果高级区与表单编辑了同一路径，最终以表单值为准
 - 这样可以避免长尾字段在导入/导出时丢失
 
+当前内置的官方 sample 快照还会自动带入官网里暂未可视化支持、但已有默认值的 section，例如：
+
+- `[tui]`
+- `[analytics]`
+- `[feedback]`
+- `[otel]`
+- `[windows]`
+
 ### 5. 预览与导出
 
 右侧会实时显示生成后的 TOML 预览，并提供：
@@ -184,7 +192,7 @@ pnpm test
 校验功能规则：
 
 - 预览区会单独显示 `Validation` / `配置校验` 面板
-- 会检查常见问题，例如缺失的 `active profile` 引用、重复的 provider/MCP/profile 标识、非法数字、以及 MCP transport 缺少必要字段
+- 会检查常见问题，例如缺失的 `profile` 引用、重复的 provider/MCP/profile 标识、非法数字、以及 MCP transport 缺少必要字段
 - 校验分为 `Errors` 和 `Validation warnings`
 - 即使存在校验问题，仍然可以继续预览、复制和下载，便于逐步修正
 
@@ -192,7 +200,7 @@ pnpm test
 
 ```toml
 # Reference: https://developers.openai.com/codex/config-sample/
-# Declared against official sample on 2026-03-08
+# Declared against official sample on 2026-03-19
 ```
 
 ## API 说明

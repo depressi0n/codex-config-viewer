@@ -8,6 +8,7 @@ import {
   createSampleDraft,
   SAMPLE_REFERENCE_URL,
   SAMPLE_REVIEWED_ON,
+  SAMPLE_UNSUPPORTED_TOML,
 } from "@/lib/config/defaults";
 import { addConfigComments } from "@/lib/config/comments";
 import { validateConfigDraft } from "@/lib/config/validation";
@@ -169,6 +170,7 @@ export function buildSupportedTomlObject(
   maybeAssignString(raw, "review_model", draft.general.reviewModel);
   maybeAssignString(raw, "model_provider", draft.general.modelProvider);
   maybeAssignString(raw, "approval_policy", draft.general.approvalPolicy);
+  maybeAssignBoolean(raw, "allow_login_shell", draft.general.allowLoginShell);
   maybeAssignString(raw, "sandbox_mode", draft.general.sandboxMode);
   maybeAssignString(raw, "service_tier", draft.general.serviceTier);
   maybeAssignString(raw, "web_search", draft.tools.webSearch || draft.general.webSearch);
@@ -187,6 +189,7 @@ export function buildSupportedTomlObject(
     draft.general.cliAuthCredentialsStore,
   );
   maybeAssignString(raw, "chatgpt_base_url", draft.general.chatgptBaseUrl);
+  maybeAssignString(raw, "openai_base_url", draft.general.openaiBaseUrl);
   maybeAssignString(
     raw,
     "forced_chatgpt_workspace_id",
@@ -198,10 +201,30 @@ export function buildSupportedTomlObject(
     "mcp_oauth_credentials_store",
     draft.general.mcpOauthCredentialsStore,
   );
+  maybeAssignNumber(raw, "mcp_oauth_callback_port", draft.general.mcpOauthCallbackPort);
+  maybeAssignString(raw, "mcp_oauth_callback_url", draft.general.mcpOauthCallbackUrl);
+  maybeAssignNumber(raw, "project_doc_max_bytes", draft.general.projectDocMaxBytes);
+  maybeAssignStringList(
+    raw,
+    "project_doc_fallback_filenames",
+    draft.general.projectDocFallbackFilenames,
+  );
+  maybeAssignStringList(raw, "project_root_markers", draft.general.projectRootMarkers);
+  maybeAssignStringList(raw, "notify", draft.general.notify);
   maybeAssignString(raw, "file_opener", draft.general.fileOpener);
   maybeAssignBoolean(raw, "hide_agent_reasoning", draft.general.hideAgentReasoning);
   maybeAssignBoolean(raw, "show_raw_agent_reasoning", draft.general.showRawAgentReasoning);
   maybeAssignBoolean(raw, "disable_paste_burst", draft.general.disablePasteBurst);
+  maybeAssignBoolean(
+    raw,
+    "windows_wsl_setup_acknowledged",
+    draft.general.windowsWslSetupAcknowledged,
+  );
+  maybeAssignBoolean(
+    raw,
+    "check_for_update_on_startup",
+    draft.general.checkForUpdateOnStartup,
+  );
   maybeAssignBoolean(
     raw,
     "suppress_unstable_features_warning",
@@ -237,6 +260,16 @@ export function buildSupportedTomlObject(
     "network_access",
     draft.sandboxWorkspaceWrite.networkAccess,
   );
+  maybeAssignBoolean(
+    sandboxWorkspaceWrite,
+    "exclude_tmpdir_env_var",
+    draft.sandboxWorkspaceWrite.excludeTmpdirEnvVar,
+  );
+  maybeAssignBoolean(
+    sandboxWorkspaceWrite,
+    "exclude_slash_tmp",
+    draft.sandboxWorkspaceWrite.excludeSlashTmp,
+  );
   if (Object.keys(sandboxWorkspaceWrite).length > 0) {
     raw.sandbox_workspace_write = sandboxWorkspaceWrite;
   }
@@ -249,13 +282,25 @@ export function buildSupportedTomlObject(
     draft.shellEnvironmentPolicy.ignoreDefaultExcludes,
   );
   maybeAssignStringList(shellEnvironmentPolicy, "exclude", draft.shellEnvironmentPolicy.exclude);
+  maybeAssignStringRecord(shellEnvironmentPolicy, "set", draft.shellEnvironmentPolicy.set);
   maybeAssignStringList(
     shellEnvironmentPolicy,
     "include_only",
     draft.shellEnvironmentPolicy.includeOnly,
   );
+  maybeAssignBoolean(
+    shellEnvironmentPolicy,
+    "experimental_use_profile",
+    draft.shellEnvironmentPolicy.experimentalUseProfile,
+  );
   if (Object.keys(shellEnvironmentPolicy).length > 0) {
     raw.shell_environment_policy = shellEnvironmentPolicy;
+  }
+
+  const tools: TomlObject = {};
+  maybeAssignBoolean(tools, "view_image", draft.tools.viewImage);
+  if (Object.keys(tools).length > 0) {
+    raw.tools = tools;
   }
 
   const modelProviders: TomlObject = {};
@@ -419,9 +464,16 @@ export function parseSupportedTomlObject(value: TomlObject): ConfigDraft {
   draft.general.model = parseString(value.model);
   draft.general.reviewModel = parseString(value.review_model);
   draft.general.modelProvider = parseString(value.model_provider);
-  draft.general.approvalPolicy = parseString(value.approval_policy) as ConfigDraft["general"]["approvalPolicy"];
-  draft.general.sandboxMode = parseString(value.sandbox_mode) as ConfigDraft["general"]["sandboxMode"];
-  draft.general.serviceTier = parseString(value.service_tier) as ConfigDraft["general"]["serviceTier"];
+  draft.general.approvalPolicy = parseString(
+    value.approval_policy,
+  ) as ConfigDraft["general"]["approvalPolicy"];
+  draft.general.allowLoginShell = parseBoolean(value.allow_login_shell);
+  draft.general.sandboxMode = parseString(
+    value.sandbox_mode,
+  ) as ConfigDraft["general"]["sandboxMode"];
+  draft.general.serviceTier = parseString(
+    value.service_tier,
+  ) as ConfigDraft["general"]["serviceTier"];
   draft.general.webSearch = parseString(value.web_search) as ConfigDraft["general"]["webSearch"];
   draft.general.activeProfile = parseString(value.profile);
   draft.general.modelReasoningEffort = parseString(
@@ -436,6 +488,7 @@ export function parseSupportedTomlObject(value: TomlObject): ConfigDraft {
     value.cli_auth_credentials_store,
   ) as ConfigDraft["general"]["cliAuthCredentialsStore"];
   draft.general.chatgptBaseUrl = parseString(value.chatgpt_base_url);
+  draft.general.openaiBaseUrl = parseString(value.openai_base_url);
   draft.general.forcedChatgptWorkspaceId = parseString(value.forced_chatgpt_workspace_id);
   draft.general.forcedLoginMethod = parseString(
     value.forced_login_method,
@@ -443,10 +496,24 @@ export function parseSupportedTomlObject(value: TomlObject): ConfigDraft {
   draft.general.mcpOauthCredentialsStore = parseString(
     value.mcp_oauth_credentials_store,
   ) as ConfigDraft["general"]["mcpOauthCredentialsStore"];
-  draft.general.fileOpener = parseString(value.file_opener) as ConfigDraft["general"]["fileOpener"];
+  draft.general.mcpOauthCallbackPort = parseNumberLikeString(value.mcp_oauth_callback_port);
+  draft.general.mcpOauthCallbackUrl = parseString(value.mcp_oauth_callback_url);
+  draft.general.projectDocMaxBytes = parseNumberLikeString(value.project_doc_max_bytes);
+  draft.general.projectDocFallbackFilenames = parseStringArray(
+    value.project_doc_fallback_filenames,
+  );
+  draft.general.projectRootMarkers = parseStringArray(value.project_root_markers);
+  draft.general.notify = parseStringArray(value.notify);
+  draft.general.fileOpener = parseString(
+    value.file_opener,
+  ) as ConfigDraft["general"]["fileOpener"];
   draft.general.hideAgentReasoning = parseBoolean(value.hide_agent_reasoning);
   draft.general.showRawAgentReasoning = parseBoolean(value.show_raw_agent_reasoning);
   draft.general.disablePasteBurst = parseBoolean(value.disable_paste_burst);
+  draft.general.windowsWslSetupAcknowledged = parseBoolean(
+    value.windows_wsl_setup_acknowledged,
+  );
+  draft.general.checkForUpdateOnStartup = parseBoolean(value.check_for_update_on_startup);
   draft.general.suppressUnstableFeaturesWarning = parseBoolean(
     value.suppress_unstable_features_warning,
   );
@@ -473,6 +540,12 @@ export function parseSupportedTomlObject(value: TomlObject): ConfigDraft {
     draft.sandboxWorkspaceWrite.networkAccess = parseBoolean(
       value.sandbox_workspace_write.network_access,
     );
+    draft.sandboxWorkspaceWrite.excludeTmpdirEnvVar = parseBoolean(
+      value.sandbox_workspace_write.exclude_tmpdir_env_var,
+    );
+    draft.sandboxWorkspaceWrite.excludeSlashTmp = parseBoolean(
+      value.sandbox_workspace_write.exclude_slash_tmp,
+    );
   }
 
   if (isPlainObject(value.shell_environment_policy)) {
@@ -485,9 +558,17 @@ export function parseSupportedTomlObject(value: TomlObject): ConfigDraft {
     draft.shellEnvironmentPolicy.exclude = parseStringArray(
       value.shell_environment_policy.exclude,
     );
+    draft.shellEnvironmentPolicy.set = recordToKeyValueItems(value.shell_environment_policy.set);
     draft.shellEnvironmentPolicy.includeOnly = parseStringArray(
       value.shell_environment_policy.include_only,
     );
+    draft.shellEnvironmentPolicy.experimentalUseProfile = parseBoolean(
+      value.shell_environment_policy.experimental_use_profile,
+    );
+  }
+
+  if (isPlainObject(value.tools)) {
+    draft.tools.viewImage = parseBoolean(value.tools.view_image);
   }
 
   if (isPlainObject(value.model_providers)) {
@@ -552,7 +633,6 @@ export function extractUnsupportedFragment(value: TomlObject): TomlObject {
     "model",
     "review_model",
     "model_provider",
-    "approval_policy",
     "sandbox_mode",
     "service_tier",
     "web_search",
@@ -562,16 +642,29 @@ export function extractUnsupportedFragment(value: TomlObject): TomlObject {
     "model_reasoning_summary",
     "oss_provider",
     "cli_auth_credentials_store",
+    "allow_login_shell",
     "chatgpt_base_url",
+    "openai_base_url",
     "forced_chatgpt_workspace_id",
     "forced_login_method",
     "mcp_oauth_credentials_store",
+    "mcp_oauth_callback_port",
+    "mcp_oauth_callback_url",
+    "project_doc_max_bytes",
+    "project_doc_fallback_filenames",
+    "project_root_markers",
+    "notify",
     "file_opener",
     "hide_agent_reasoning",
     "show_raw_agent_reasoning",
     "disable_paste_burst",
+    "windows_wsl_setup_acknowledged",
+    "check_for_update_on_startup",
     "suppress_unstable_features_warning",
   ]);
+  if (typeof clone.approval_policy === "string") {
+    delete clone.approval_policy;
+  }
 
   if (isPlainObject(clone.history)) {
     stripKnownKeys(clone.history, ["persistence", "max_bytes"]);
@@ -591,7 +684,12 @@ export function extractUnsupportedFragment(value: TomlObject): TomlObject {
   }
 
   if (isPlainObject(clone.sandbox_workspace_write)) {
-    stripKnownKeys(clone.sandbox_workspace_write, ["writable_roots", "network_access"]);
+    stripKnownKeys(clone.sandbox_workspace_write, [
+      "writable_roots",
+      "network_access",
+      "exclude_tmpdir_env_var",
+      "exclude_slash_tmp",
+    ]);
     if (Object.keys(clone.sandbox_workspace_write).length === 0) {
       delete clone.sandbox_workspace_write;
     }
@@ -602,10 +700,19 @@ export function extractUnsupportedFragment(value: TomlObject): TomlObject {
       "inherit",
       "ignore_default_excludes",
       "exclude",
+      "set",
       "include_only",
+      "experimental_use_profile",
     ]);
     if (Object.keys(clone.shell_environment_policy).length === 0) {
       delete clone.shell_environment_policy;
+    }
+  }
+
+  if (isPlainObject(clone.tools)) {
+    stripKnownKeys(clone.tools, ["view_image"]);
+    if (Object.keys(clone.tools).length === 0) {
+      delete clone.tools;
     }
   }
 
@@ -764,7 +871,7 @@ export function safelyGenerateConfigToml(
 }
 
 export function createSampleToml(options: GenerateConfigOptions = {}): string {
-  return generateConfigToml(createSampleDraft(), "", options).toml;
+  return generateConfigToml(createSampleDraft(), SAMPLE_UNSUPPORTED_TOML, options).toml;
 }
 
 function addReferenceHeader(toml: string): string {

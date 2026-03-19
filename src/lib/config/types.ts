@@ -27,7 +27,7 @@ export type HistoryPersistenceValue = "" | "save-all" | "none";
 
 export type ShellInheritanceValue = "" | "all" | "core" | "none";
 
-export type WebSearchValue = "" | "cached" | "live";
+export type WebSearchValue = "" | "disabled" | "cached" | "live";
 
 export type CredentialStoreValue = "" | "file" | "keyring" | "auto";
 
@@ -57,6 +57,7 @@ export interface GeneralSettings {
   reviewModel: string;
   modelProvider: string;
   approvalPolicy: ApprovalPolicyValue;
+  allowLoginShell: boolean;
   sandboxMode: SandboxModeValue;
   serviceTier: ServiceTierValue;
   webSearch: WebSearchValue;
@@ -67,13 +68,22 @@ export interface GeneralSettings {
   ossProvider: string;
   cliAuthCredentialsStore: CredentialStoreValue;
   chatgptBaseUrl: string;
+  openaiBaseUrl: string;
   forcedChatgptWorkspaceId: string;
   forcedLoginMethod: LoginMethodValue;
   mcpOauthCredentialsStore: CredentialStoreValue;
+  mcpOauthCallbackPort: string;
+  mcpOauthCallbackUrl: string;
+  projectDocMaxBytes: string;
+  projectDocFallbackFilenames: string[];
+  projectRootMarkers: string[];
+  notify: string[];
   fileOpener: FileOpenerValue;
   hideAgentReasoning: boolean;
   showRawAgentReasoning: boolean;
   disablePasteBurst: boolean;
+  windowsWslSetupAcknowledged: boolean;
+  checkForUpdateOnStartup: boolean;
   suppressUnstableFeaturesWarning: boolean;
 }
 
@@ -90,17 +100,22 @@ export interface FeaturesSettings {
 export interface SandboxWorkspaceWriteSettings {
   writableRoots: string[];
   networkAccess: boolean;
+  excludeTmpdirEnvVar: boolean;
+  excludeSlashTmp: boolean;
 }
 
 export interface ShellEnvironmentSettings {
   inherit: ShellInheritanceValue;
   ignoreDefaultExcludes: boolean;
   exclude: string[];
+  set: KeyValueItem[];
   includeOnly: string[];
+  experimentalUseProfile: boolean;
 }
 
 export interface ToolsSettings {
   webSearch: WebSearchValue;
+  viewImage: boolean;
 }
 
 export interface ModelProviderDraft {

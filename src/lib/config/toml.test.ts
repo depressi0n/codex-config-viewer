@@ -4,6 +4,7 @@ import {
   createSampleDraft,
 } from "@/lib/config/defaults";
 import {
+  createSampleToml,
   generateConfigToml,
   parseConfigToml,
   parseConfigTomlWithLocale,
@@ -14,10 +15,18 @@ describe("config TOML transforms", () => {
   it("round-trips key supported fields", () => {
     const draft = createSampleDraft();
     draft.general.sandboxMode = "workspace-write";
+    draft.general.allowLoginShell = true;
+    draft.general.projectDocMaxBytes = "65536";
+    draft.general.projectDocFallbackFilenames = ["AGENTS.md", "README.md"];
+    draft.general.projectRootMarkers = [".git", "package.json"];
+    draft.general.notify = ["terminal-notifier", "-title", "Codex"];
     draft.sandboxWorkspaceWrite.writableRoots = ["/tmp/shared"];
     draft.sandboxWorkspaceWrite.networkAccess = true;
+    draft.sandboxWorkspaceWrite.excludeTmpdirEnvVar = true;
     draft.history.maxBytes = "5242880";
-    draft.features.useExperimentalReasoningSummary = true;
+    draft.shellEnvironmentPolicy.set = [{ key: "FOO", value: "bar" }];
+    draft.shellEnvironmentPolicy.experimentalUseProfile = true;
+    draft.tools.viewImage = true;
     draft.projects = [{ path: "/workspace/project", trustLevel: "trusted" }];
 
     const docsServer = createEmptyMcpServer();
@@ -34,13 +43,23 @@ describe("config TOML transforms", () => {
       "# Reference: https://developers.openai.com/codex/config-sample/",
     );
     expect(generated.toml).toContain(
-      "# Declared against official sample on 2026-03-08",
+      "# Declared against official sample on 2026-03-19",
     );
     expect(parsed.draft.general.model).toBe("gpt-5.4");
     expect(parsed.draft.general.sandboxMode).toBe("workspace-write");
+    expect(parsed.draft.general.projectDocMaxBytes).toBe("65536");
+    expect(parsed.draft.general.projectDocFallbackFilenames).toEqual([
+      "AGENTS.md",
+      "README.md",
+    ]);
+    expect(parsed.draft.general.projectRootMarkers).toEqual([".git", "package.json"]);
+    expect(parsed.draft.general.notify).toEqual(["terminal-notifier", "-title", "Codex"]);
     expect(parsed.draft.history.maxBytes).toBe("5242880");
-    expect(parsed.draft.features.useExperimentalReasoningSummary).toBe(true);
     expect(parsed.draft.sandboxWorkspaceWrite.writableRoots).toEqual(["/tmp/shared"]);
+    expect(parsed.draft.sandboxWorkspaceWrite.excludeTmpdirEnvVar).toBe(true);
+    expect(parsed.draft.shellEnvironmentPolicy.set).toEqual([{ key: "FOO", value: "bar" }]);
+    expect(parsed.draft.shellEnvironmentPolicy.experimentalUseProfile).toBe(true);
+    expect(parsed.draft.tools.viewImage).toBe(true);
     expect(parsed.draft.mcpServers[0]?.url).toBe("https://docs.example.com/mcp");
     expect(parsed.draft.projects[0]?.trustLevel).toBe("trusted");
   });
@@ -73,6 +92,22 @@ describe("config TOML transforms", () => {
 
     expect(parsed.unsupportedToml).toContain("[permissions.network]");
     expect(parsed.unsupportedToml).toContain('allow = [ "api.openai.com" ]');
+  });
+
+  it("preserves unsupported granular approval policies instead of dropping them", () => {
+    const parsed = parseConfigToml(
+      [
+        "[approval_policy]",
+        'mode = "granular"',
+        "",
+        "[approval_policy.granular]",
+        "read = true",
+      ].join("\n"),
+    );
+
+    expect(parsed.draft.general.approvalPolicy).toBe("");
+    expect(parsed.unsupportedToml).toContain("[approval_policy]");
+    expect(parsed.unsupportedToml).toContain("read = true");
   });
 
   it("returns parse error details for invalid TOML", () => {
@@ -113,6 +148,17 @@ describe("config TOML transforms", () => {
     expect(withComments.toml).toContain("# Model: Default session model.");
     expect(withComments.toml).toContain("# History: Compaction and persistence controls.");
     expect(withoutComments.toml).not.toContain("# Model: Default session model.");
+  });
+
+  it("includes the current official unsupported sample sections in the sample TOML", () => {
+    const sampleToml = createSampleToml({
+      includeComments: false,
+      locale: "en",
+    });
+
+    expect(sampleToml).toContain("[tui]");
+    expect(sampleToml).toContain("[analytics]");
+    expect(sampleToml).toContain("[otel]");
   });
 
   it("returns validation issues from generated draft output", () => {

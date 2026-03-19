@@ -33,7 +33,7 @@ export const HISTORY_PERSISTENCE_OPTIONS = ["save-all", "none"] as const;
 
 export const SHELL_INHERITANCE_OPTIONS = ["all", "core", "none"] as const;
 
-export const WEB_SEARCH_OPTIONS = ["cached", "live"] as const;
+export const WEB_SEARCH_OPTIONS = ["disabled", "cached", "live"] as const;
 
 export const CREDENTIAL_STORE_OPTIONS = ["file", "keyring", "auto"] as const;
 
