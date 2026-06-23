@@ -40,6 +40,8 @@ export type CredentialStoreValue = "" | "file" | "keyring" | "auto";
 
 export type LoginMethodValue = "" | "chatgpt" | "api";
 
+export type FeatureToggleValue = "" | "enabled" | "disabled";
+
 export type FileOpenerValue =
   | ""
   | "vscode"
@@ -124,8 +126,20 @@ export interface HistorySettings {
 }
 
 export interface FeaturesSettings {
-  disableFastModel: boolean;
-  useExperimentalReasoningSummary: boolean;
+  shellTool: FeatureToggleValue;
+  apps: FeatureToggleValue;
+  hooks: FeatureToggleValue;
+  codexGitCommit: FeatureToggleValue;
+  unifiedExec: FeatureToggleValue;
+  shellSnapshot: FeatureToggleValue;
+  multiAgent: FeatureToggleValue;
+  personalityFeature: FeatureToggleValue;
+  fastMode: FeatureToggleValue;
+  enableRequestCompression: FeatureToggleValue;
+  skillMcpDependencyInstall: FeatureToggleValue;
+  preventIdleSleep: FeatureToggleValue;
+  memories: FeatureToggleValue;
+  undo: FeatureToggleValue;
 }
 
 export interface SandboxWorkspaceWriteSettings {

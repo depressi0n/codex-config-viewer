@@ -4,12 +4,12 @@ export const zhCnDictionary: DictionaryShape = {
   app: {
     title: "Codex 配置可视化管理器",
     subtitle: "基于官方 Codex 配置文档的双语可视化编辑器，支持 TOML 导入、预览和导出。",
-    badge: "基于 2026-06-04 官方文档审核",
+    badge: "基于 2026-06-23 官方文档审核",
     sampleLabel: "官方 sample 快照",
     recommended: {
       label: "推荐起步配置",
       description:
-        "这是一个基于 2026-06-04 官方 sample 的项目内推荐预设，面向日常编码场景：workspace-write、按需审批、core shell 继承、实时 Web 搜索。",
+        "这是一个基于 2026-06-23 官方 sample 的项目内推荐预设，面向日常编码场景：workspace-write、按需审批、core shell 继承、实时 Web 搜索。",
       note: "该预设带有项目判断，不属于官方 sample 原文。",
     },
     actions: {
@@ -116,7 +116,7 @@ export const zhCnDictionary: DictionaryShape = {
     },
     features: {
       title: "功能开关",
-      description: "实验性或可选功能开关。",
+      description: "当前 config reference 里的 [features] 覆盖项。留空表示沿用 Codex 默认值。",
     },
     sandbox: {
       title: "沙箱",
@@ -214,11 +214,41 @@ export const zhCnDictionary: DictionaryShape = {
     suppressUnstableFeaturesWarning: ["隐藏不稳定特性提示", "隐藏不稳定特性开关的警告。"],
     historyPersistence: ["持久化", "save-all 或 none。"],
     historyMaxBytes: ["历史最大字节数", "超过该大小时裁剪最旧历史。"],
-    disableFastModel: ["禁用 fast model", "关闭功能开关启用的 fast model shortcut。"],
-    useExperimentalReasoningSummary: [
-      "启用实验性推理摘要",
-      "打开实验性的 reasoning summary 功能开关。",
+    shellTool: ["Shell 工具", "启用默认的 shell 命令执行工具。"],
+    apps: ["Apps / Connectors", "启用 ChatGPT Apps 与连接器支持。"],
+    hooks: ["Hooks", "启用 hooks.json 或内联 [hooks] 生命周期钩子。"],
+    codexGitCommit: [
+      "Codex Git Commit",
+      "允许 Codex 自动生成 git commit，并配合 commit attribution 使用。",
     ],
+    unifiedExec: ["Unified Exec", "启用基于 PTY 的统一 exec 工具。"],
+    shellSnapshot: [
+      "Shell 快照",
+      "缓存 shell 环境快照，加快重复命令执行。",
+    ],
+    multiAgent: ["多 Agent", "启用 spawn、resume 等多 agent 协作工具。"],
+    personalityFeature: [
+      "个性控制",
+      "在支持的 Codex 界面中启用 personality 选择控件。",
+    ],
+    fastMode: [
+      "Fast Mode",
+      "当模型目录声明可用时，启用 fast tier 模型选择。",
+    ],
+    enableRequestCompression: [
+      "请求压缩",
+      "在支持时用 zstd 压缩流式请求体。",
+    ],
+    skillMcpDependencyInstall: [
+      "Skill MCP 依赖安装",
+      "允许为 skill 缺失的 MCP 依赖发起安装提示。",
+    ],
+    preventIdleSleep: [
+      "阻止空闲休眠",
+      "在 turn 正在运行时保持机器唤醒。",
+    ],
+    memories: ["Memories", "启用 Codex Memories。"],
+    undo: ["撤销", "启用 undo 支持。"],
     writableRoots: ["可写目录", "当前 workspace 之外的额外可写根目录。"],
     networkAccess: ["网络访问", "workspace-write 模式下允许外网访问。"],
     excludeTmpdirEnvVar: ["排除 TMPDIR 环境变量", "workspace-write 模式下不透传 TMPDIR。"],
@@ -368,6 +398,10 @@ export const zhCnDictionary: DictionaryShape = {
     trustLevel: {
       trusted: "可信",
       untrusted: "不可信",
+    },
+    featureToggle: {
+      enabled: "启用",
+      disabled: "禁用",
     },
   },
 };

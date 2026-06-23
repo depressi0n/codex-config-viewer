@@ -15,7 +15,7 @@
 
 - 官方参考链接：[https://developers.openai.com/codex/config-sample/](https://developers.openai.com/codex/config-sample/)
 - 官方 Subagents 文档：[https://developers.openai.com/codex/subagents](https://developers.openai.com/codex/subagents)
-- 当前项目声明基于上述官方文档的审核时间：`2026-06-04`
+- 当前项目声明基于上述官方文档的审核时间：`2026-06-23`
 - Vercel Deploy Button 参考文档：[Working with the Deploy Button](https://vercel.com/docs/deployments/deploy-button)
 
 说明：
@@ -119,7 +119,7 @@ pnpm test
 
 - `Apply recommended preset` / `应用推荐预设`
 
-当前推荐预设是本项目维护的非官方起步配置，基于 `2026-06-04` 审核的官方 sample 进行收敛，默认会应用这些关键值：
+当前推荐预设是本项目维护的非官方起步配置，基于 `2026-06-23` 审核的官方 sample 进行收敛，默认会应用这些关键值：
 
 - `approval_policy = "on-request"`
 - `sandbox_mode = "workspace-write"`
@@ -168,7 +168,7 @@ pnpm test
 - 如果高级区与表单编辑了同一路径，最终以表单值为准
 - 这样可以避免长尾字段在导入/导出时丢失
 
-当前内置的官方 sample 快照还会自动带入官网里暂未可视化支持、但已有默认值的 section，例如：
+当前内置的官方 sample 快照还会自动带入官网 sample 里暂未可视化支持、且有实际默认值或示例值的表与片段，例如：
 
 - `[tui]`
 - `[analytics]`
@@ -177,6 +177,8 @@ pnpm test
 - `[windows]`
 - `[agents.reviewer]`
 - `[[skills.config]]`
+
+另外，当前官方文档还展示了 `[notice]`、`[hooks]`、`[apps]`、`[tool_suggest]`、`[memories]` 等高级空表或结构。它们在没有实际值时不会出现在最终生成的 TOML；一旦你导入了包含这些内容的配置，系统仍会把它们保留到高级 TOML 区域。
 
 ### 5. 预览与导出
 
@@ -205,7 +207,7 @@ pnpm test
 ```toml
 # Reference: https://developers.openai.com/codex/config-sample/
 # Reference: https://developers.openai.com/codex/subagents
-# Declared against official docs on 2026-06-04
+# Declared against official docs on 2026-06-23
 ```
 
 ## Subagents 示例包

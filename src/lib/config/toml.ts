@@ -12,6 +12,12 @@ import {
   SAMPLE_UNSUPPORTED_TOML,
 } from "@/lib/config/defaults";
 import { addConfigComments } from "@/lib/config/comments";
+import {
+  FEATURE_TOGGLE_DEFINITIONS,
+  LEGACY_FEATURE_KEYS,
+  parseFeatureToggle,
+  serializeFeatureToggle,
+} from "@/lib/config/features";
 import { validateConfigDraft } from "@/lib/config/validation";
 import {
   compactStringList,
@@ -64,6 +70,18 @@ function maybeAssignString(target: TomlObject, key: string, value: string) {
 function maybeAssignBoolean(target: TomlObject, key: string, value: boolean) {
   if (value) {
     target[key] = true;
+  }
+}
+
+function maybeAssignFeatureToggle(
+  target: TomlObject,
+  key: string,
+  value: ConfigDraft["features"][keyof ConfigDraft["features"]],
+) {
+  const serialized = serializeFeatureToggle(value);
+
+  if (serialized !== undefined) {
+    target[key] = serialized;
   }
 }
 
@@ -317,12 +335,9 @@ export function buildSupportedTomlObject(
   }
 
   const features: TomlObject = {};
-  maybeAssignBoolean(features, "disable_fast_model", draft.features.disableFastModel);
-  maybeAssignBoolean(
-    features,
-    "use_experimental_reasoning_summary",
-    draft.features.useExperimentalReasoningSummary,
-  );
+  for (const { field, tomlKey } of FEATURE_TOGGLE_DEFINITIONS) {
+    maybeAssignFeatureToggle(features, tomlKey, draft.features[field]);
+  }
   if (Object.keys(features).length > 0) {
     raw.features = features;
   }
@@ -665,7 +680,6 @@ export function parseSupportedTomlObject(value: TomlObject): ConfigDraft {
   draft.general.suppressUnstableFeaturesWarning = parseBoolean(
     value.suppress_unstable_features_warning,
   );
-  draft.tools.webSearch = draft.general.webSearch;
 
   if (isPlainObject(value.history)) {
     draft.history.persistence = parseString(
@@ -675,11 +689,34 @@ export function parseSupportedTomlObject(value: TomlObject): ConfigDraft {
   }
 
   if (isPlainObject(value.features)) {
-    draft.features.disableFastModel = parseBoolean(value.features.disable_fast_model);
-    draft.features.useExperimentalReasoningSummary = parseBoolean(
-      value.features.use_experimental_reasoning_summary,
-    );
+    for (const { field, tomlKey } of FEATURE_TOGGLE_DEFINITIONS) {
+      draft.features[field] = parseFeatureToggle(value.features[tomlKey]);
+    }
+
+    if (!draft.features.fastMode && parseBoolean(value.features.disable_fast_model)) {
+      draft.features.fastMode = "disabled";
+    }
+
+    if (!draft.features.hooks && typeof value.features.codex_hooks === "boolean") {
+      draft.features.hooks = parseFeatureToggle(value.features.codex_hooks);
+    }
+
+    if (!draft.general.webSearch) {
+      if (parseBoolean(value.features.web_search_request)) {
+        draft.general.webSearch = "live";
+      } else if (parseBoolean(value.features.web_search_cached)) {
+        draft.general.webSearch = "cached";
+      } else if (value.features.web_search === false) {
+        draft.general.webSearch = "disabled";
+      }
+    }
   }
+
+  if (!draft.features.unifiedExec && typeof value.experimental_use_unified_exec_tool === "boolean") {
+    draft.features.unifiedExec = parseFeatureToggle(value.experimental_use_unified_exec_tool);
+  }
+
+  draft.tools.webSearch = draft.general.webSearch;
 
   if (isPlainObject(value.sandbox_workspace_write)) {
     draft.sandboxWorkspaceWrite.writableRoots = parseStringArray(
@@ -822,6 +859,7 @@ export function extractUnsupportedFragment(value: TomlObject): TomlObject {
     "notify",
     "commit_attribution",
     "experimental_compact_prompt_file",
+    "experimental_use_unified_exec_tool",
     "background_terminal_max_timeout",
     "log_dir",
     "sqlite_home",
@@ -864,8 +902,8 @@ export function extractUnsupportedFragment(value: TomlObject): TomlObject {
 
   if (isPlainObject(clone.features)) {
     stripKnownKeys(clone.features, [
-      "disable_fast_model",
-      "use_experimental_reasoning_summary",
+      ...FEATURE_TOGGLE_DEFINITIONS.map(({ tomlKey }) => tomlKey),
+      ...LEGACY_FEATURE_KEYS,
     ]);
     if (Object.keys(clone.features).length === 0) {
       delete clone.features;

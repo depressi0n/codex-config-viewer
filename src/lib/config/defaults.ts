@@ -6,7 +6,7 @@ import type {
   ProjectDraft,
 } from "@/lib/config/types";
 
-export const SAMPLE_REVIEWED_ON = "2026-06-04";
+export const SAMPLE_REVIEWED_ON = "2026-06-23";
 export const SAMPLE_REFERENCE_URL = "https://developers.openai.com/codex/config-sample/";
 export const SUBAGENTS_REFERENCE_URL = "https://developers.openai.com/codex/subagents";
 export const REPOSITORY_URL = "https://github.com/depressi0n/codex-config-viewer";
@@ -191,8 +191,20 @@ export function createEmptyDraft(): ConfigDraft {
       maxBytes: "",
     },
     features: {
-      disableFastModel: false,
-      useExperimentalReasoningSummary: false,
+      shellTool: "",
+      apps: "",
+      hooks: "",
+      codexGitCommit: "",
+      unifiedExec: "",
+      shellSnapshot: "",
+      multiAgent: "",
+      personalityFeature: "",
+      fastMode: "",
+      enableRequestCompression: "",
+      skillMcpDependencyInstall: "",
+      preventIdleSleep: "",
+      memories: "",
+      undo: "",
     },
     sandboxWorkspaceWrite: {
       writableRoots: [],
@@ -287,8 +299,20 @@ export function createSampleDraft(): ConfigDraft {
       maxBytes: "",
     },
     features: {
-      disableFastModel: false,
-      useExperimentalReasoningSummary: false,
+      shellTool: "",
+      apps: "",
+      hooks: "",
+      codexGitCommit: "",
+      unifiedExec: "",
+      shellSnapshot: "",
+      multiAgent: "",
+      personalityFeature: "",
+      fastMode: "",
+      enableRequestCompression: "",
+      skillMcpDependencyInstall: "",
+      preventIdleSleep: "",
+      memories: "",
+      undo: "",
     },
     sandboxWorkspaceWrite: {
       writableRoots: [],

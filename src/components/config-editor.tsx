@@ -27,6 +27,7 @@ import {
   SUBAGENTS_REFERENCE_URL,
   VERCEL_DEPLOY_URL,
 } from "@/lib/config/defaults";
+import { FEATURE_TOGGLE_DEFINITIONS } from "@/lib/config/features";
 import {
   APPROVAL_POLICY_OPTIONS,
   APPROVALS_REVIEWER_OPTIONS,
@@ -1074,34 +1075,29 @@ export function ConfigEditor({
               title={dictionary.sections.features.title}
               description={dictionary.sections.features.description}
             >
-              <div className="grid gap-3 md:grid-cols-2">
-                {([
-                  ["disableFastModel", draft.features.disableFastModel],
-                  [
-                    "useExperimentalReasoningSummary",
-                    draft.features.useExperimentalReasoningSummary,
-                  ],
-                ] as const).map(([key, checked]) => {
-                  const { label, hint } = fieldText(key);
-
-                  return (
-                    <label
-                      key={key}
-                      className={`flex items-start gap-3 rounded-2xl border px-4 py-3 ${boolInputClass(checked)}`}
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {FEATURE_TOGGLE_DEFINITIONS.map(({ field }) => (
+                  <Field key={field} {...fieldText(field)}>
+                    <select
+                      className={inputClassName}
+                      value={draft.features[field]}
+                      onChange={(event) =>
+                        updateFeatures(
+                          field,
+                          event.target.value as ConfigDraft["features"][typeof field],
+                        )
+                      }
                     >
-                      <input
-                        type="checkbox"
-                        className="mt-1 h-4 w-4 accent-emerald-400"
-                        checked={checked}
-                        onChange={(event) => updateFeatures(key, event.target.checked)}
-                      />
-                      <div>
-                        <div className="text-sm font-medium text-slate-200">{label}</div>
-                        <p className="mt-1 text-xs leading-5 text-slate-400">{hint}</p>
-                      </div>
-                    </label>
-                  );
-                })}
+                      {sharedOptionBlank}
+                      <option value="enabled">
+                        {dictionary.options.featureToggle.enabled}
+                      </option>
+                      <option value="disabled">
+                        {dictionary.options.featureToggle.disabled}
+                      </option>
+                    </select>
+                  </Field>
+                ))}
               </div>
             </SectionCard>
 

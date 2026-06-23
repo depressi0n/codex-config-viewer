@@ -57,7 +57,7 @@ describe("config TOML transforms", () => {
       "# Reference: https://developers.openai.com/codex/subagents",
     );
     expect(generated.toml).toContain(
-      "# Declared against official docs on 2026-06-04",
+      "# Declared against official docs on 2026-06-23",
     );
     expect(parsed.draft.general.model).toBe("gpt-5.5");
     expect(parsed.draft.general.sandboxMode).toBe("workspace-write");
@@ -175,6 +175,62 @@ describe("config TOML transforms", () => {
     expect(reparsed.draft.mcpServers[0]?.envVars).toEqual(["LOCAL_TOKEN", "REMOTE_TOKEN"]);
     expect(reparsed.draft.mcpServers[0]?.experimentalEnvironment).toBe("remote");
     expect(reparsed.draft.mcpServers[0]?.startupTimeoutSec).toBe("10");
+  });
+
+  it("round-trips current feature overrides with explicit enabled and disabled values", () => {
+    const parsed = parseConfigToml(
+      [
+        "[features]",
+        "apps = false",
+        "hooks = true",
+        "fast_mode = false",
+        "unified_exec = true",
+        "memories = true",
+        "undo = false",
+      ].join("\n"),
+    );
+    const generated = generateConfigToml(parsed.draft);
+    const reparsed = parseConfigToml(generated.toml);
+
+    expect(parsed.draft.features.apps).toBe("disabled");
+    expect(parsed.draft.features.hooks).toBe("enabled");
+    expect(parsed.draft.features.fastMode).toBe("disabled");
+    expect(parsed.draft.features.unifiedExec).toBe("enabled");
+    expect(parsed.draft.features.memories).toBe("enabled");
+    expect(parsed.draft.features.undo).toBe("disabled");
+    expect(parsed.unsupportedToml).toBe("");
+    expect(generated.toml).toContain("apps = false");
+    expect(generated.toml).toContain("hooks = true");
+    expect(generated.toml).toContain("fast_mode = false");
+    expect(generated.toml).toContain("unified_exec = true");
+    expect(reparsed.draft.features.fastMode).toBe("disabled");
+    expect(reparsed.draft.features.unifiedExec).toBe("enabled");
+  });
+
+  it("maps documented legacy feature aliases into current fields", () => {
+    const parsed = parseConfigToml(
+      [
+        "experimental_use_unified_exec_tool = false",
+        "",
+        "[features]",
+        "disable_fast_model = true",
+        "codex_hooks = true",
+        "web_search_cached = true",
+      ].join("\n"),
+    );
+    const generated = generateConfigToml(parsed.draft);
+
+    expect(parsed.draft.features.unifiedExec).toBe("disabled");
+    expect(parsed.draft.features.fastMode).toBe("disabled");
+    expect(parsed.draft.features.hooks).toBe("enabled");
+    expect(parsed.draft.general.webSearch).toBe("cached");
+    expect(parsed.unsupportedToml).not.toContain("experimental_use_unified_exec_tool");
+    expect(parsed.unsupportedToml).not.toContain("disable_fast_model");
+    expect(parsed.unsupportedToml).not.toContain("codex_hooks");
+    expect(parsed.unsupportedToml).not.toContain("web_search_cached");
+    expect(generated.toml).toContain("unified_exec = false");
+    expect(generated.toml).toContain("fast_mode = false");
+    expect(generated.toml).toContain('web_search = "cached"');
   });
 
   it("returns parse error details for invalid TOML", () => {

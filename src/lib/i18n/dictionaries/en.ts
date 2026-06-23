@@ -5,12 +5,12 @@ export const enDictionary: DictionaryShape = {
     title: "Codex Config Viewer",
     subtitle:
       "A bilingual visual editor for the official Codex config docs, with TOML import, preview, and export.",
-    badge: "Reviewed against official docs on 2026-06-04",
+    badge: "Reviewed against official docs on 2026-06-23",
     sampleLabel: "Official sample snapshot",
     recommended: {
       label: "Recommended starter preset",
       description:
-        "An app-maintained preset built on the 2026-06-04 official sample for day-to-day coding: workspace-write sandbox, on-request approvals, core shell inheritance, and live web search.",
+        "An app-maintained preset built on the 2026-06-23 official sample for day-to-day coding: workspace-write sandbox, on-request approvals, core shell inheritance, and live web search.",
       note: "This preset is opinionated and is not part of the official sample.",
     },
     actions: {
@@ -122,7 +122,8 @@ export const enDictionary: DictionaryShape = {
     },
     features: {
       title: "Features",
-      description: "Experimental or optional feature toggles.",
+      description:
+        "Current [features] overrides from the config reference. Leave blank to use Codex defaults.",
     },
     sandbox: {
       title: "Sandbox",
@@ -277,14 +278,44 @@ export const enDictionary: DictionaryShape = {
     ],
     historyPersistence: ["Persistence", "save-all or none."],
     historyMaxBytes: ["Max history bytes", "Trim oldest history entries after this size."],
-    disableFastModel: [
-      "Disable fast model",
-      "Disable the fast model shortcut when a feature flag would enable it.",
+    shellTool: ["Shell tool", "Enable the default shell tool for running commands."],
+    apps: ["Apps/connectors", "Enable ChatGPT Apps and connector support."],
+    hooks: ["Hooks", "Enable lifecycle hooks from hooks.json or inline [hooks]."],
+    codexGitCommit: [
+      "Codex git commit",
+      "Allow Codex-generated git commits and optional commit attribution.",
     ],
-    useExperimentalReasoningSummary: [
-      "Use experimental reasoning summary",
-      "Enable the experimental reasoning summary feature flag.",
+    unifiedExec: ["Unified exec", "Use the PTY-backed unified exec tool."],
+    shellSnapshot: [
+      "Shell snapshot",
+      "Cache shell environment snapshots to speed up repeated commands.",
     ],
+    multiAgent: [
+      "Multi-agent",
+      "Enable multi-agent collaboration tools such as spawn and resume.",
+    ],
+    personalityFeature: [
+      "Personality controls",
+      "Enable personality selection controls in supported Codex surfaces.",
+    ],
+    fastMode: [
+      "Fast mode",
+      "Enable fast-tier model selection when advertised by the model catalog.",
+    ],
+    enableRequestCompression: [
+      "Request compression",
+      "Compress streaming request bodies with zstd when supported.",
+    ],
+    skillMcpDependencyInstall: [
+      "Skill MCP dependency install",
+      "Allow prompting to install missing MCP dependencies required by skills.",
+    ],
+    preventIdleSleep: [
+      "Prevent idle sleep",
+      "Keep the machine awake while a turn is actively running.",
+    ],
+    memories: ["Memories", "Enable Codex memories."],
+    undo: ["Undo", "Enable undo support."],
     writableRoots: ["Writable roots", "Extra writable roots beyond the current workspace."],
     networkAccess: ["Network access", "Allow outbound network access in workspace-write mode."],
     excludeTmpdirEnvVar: [
@@ -463,6 +494,10 @@ export const enDictionary: DictionaryShape = {
     trustLevel: {
       trusted: "Trusted",
       untrusted: "Untrusted",
+    },
+    featureToggle: {
+      enabled: "Enabled",
+      disabled: "Disabled",
     },
   },
 };
