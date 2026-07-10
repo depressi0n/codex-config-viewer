@@ -6,6 +6,7 @@ import {
   createEmptyModelProvider,
   createEmptyProfile,
   createSampleDraft,
+  CONFIG_REFERENCE_URL,
   SAMPLE_REFERENCE_URL,
   SAMPLE_REVIEWED_ON,
   SUBAGENTS_REFERENCE_URL,
@@ -160,8 +161,8 @@ function serializeProvider(provider: ModelProviderDraft): TomlObject {
 function serializeMcpServer(server: McpServerDraft): TomlObject {
   const next: TomlObject = {};
 
-  if (server.enabled) {
-    next.enabled = true;
+  if (!server.enabled) {
+    next.enabled = false;
   }
 
   if (server.required) {
@@ -188,6 +189,12 @@ function serializeMcpServer(server: McpServerDraft): TomlObject {
   maybeAssignStringList(next, "disabled_tools", server.disabledTools);
   maybeAssignStringList(next, "scopes", server.scopes);
   maybeAssignString(next, "oauth_resource", server.oauthResource);
+  maybeAssignString(next, "auth", server.auth);
+  maybeAssignString(
+    next,
+    "default_tools_approval_mode",
+    server.defaultToolsApprovalMode,
+  );
 
   return next;
 }
@@ -255,6 +262,11 @@ export function buildSupportedTomlObject(
     "model_auto_compact_token_limit",
     draft.general.modelAutoCompactTokenLimit,
   );
+  maybeAssignString(
+    raw,
+    "model_auto_compact_token_limit_scope",
+    draft.general.modelAutoCompactTokenLimitScope,
+  );
   maybeAssignBoolean(
     raw,
     "model_supports_reasoning_summaries",
@@ -262,6 +274,8 @@ export function buildSupportedTomlObject(
   );
   maybeAssignString(raw, "model_catalog_json", draft.general.modelCatalogJson);
   maybeAssignString(raw, "model_instructions_file", draft.general.modelInstructionsFile);
+  maybeAssignString(raw, "developer_instructions", draft.general.developerInstructions);
+  maybeAssignString(raw, "compact_prompt", draft.general.compactPrompt);
   maybeAssignNumber(raw, "tool_output_token_limit", draft.general.toolOutputTokenLimit);
   maybeAssignString(raw, "default_permissions", draft.general.defaultPermissions);
   maybeAssignString(raw, "personality", draft.general.personality);
@@ -294,7 +308,6 @@ export function buildSupportedTomlObject(
   );
   maybeAssignStringList(raw, "project_root_markers", draft.general.projectRootMarkers);
   maybeAssignStringList(raw, "notify", draft.general.notify);
-  maybeAssignString(raw, "commit_attribution", draft.general.commitAttribution);
   maybeAssignString(
     raw,
     "experimental_compact_prompt_file",
@@ -403,6 +416,11 @@ export function buildSupportedTomlObject(
     agents,
     "job_max_runtime_seconds",
     draft.agents.jobMaxRuntimeSeconds,
+  );
+  maybeAssignFeatureToggle(
+    agents,
+    "interrupt_message",
+    draft.agents.interruptMessage,
   );
   if (Object.keys(agents).length > 0) {
     raw.agents = agents;
@@ -540,6 +558,10 @@ function parseMcpServer(id: string, value: unknown): McpServerDraft {
     disabledTools: parseStringArray(record.disabled_tools),
     scopes: parseStringArray(record.scopes),
     oauthResource: parseString(record.oauth_resource),
+    auth: parseString(record.auth) as McpServerDraft["auth"],
+    defaultToolsApprovalMode: parseString(
+      record.default_tools_approval_mode,
+    ) as McpServerDraft["defaultToolsApprovalMode"],
   };
 }
 
@@ -627,11 +649,16 @@ export function parseSupportedTomlObject(value: TomlObject): ConfigDraft {
   draft.general.modelAutoCompactTokenLimit = parseNumberLikeString(
     value.model_auto_compact_token_limit,
   );
+  draft.general.modelAutoCompactTokenLimitScope = parseString(
+    value.model_auto_compact_token_limit_scope,
+  ) as ConfigDraft["general"]["modelAutoCompactTokenLimitScope"];
   draft.general.modelSupportsReasoningSummaries = parseBoolean(
     value.model_supports_reasoning_summaries,
   );
   draft.general.modelCatalogJson = parseString(value.model_catalog_json);
   draft.general.modelInstructionsFile = parseString(value.model_instructions_file);
+  draft.general.developerInstructions = parseString(value.developer_instructions);
+  draft.general.compactPrompt = parseString(value.compact_prompt);
   draft.general.toolOutputTokenLimit = parseNumberLikeString(value.tool_output_token_limit);
   draft.general.defaultPermissions = parseString(value.default_permissions);
   draft.general.personality = parseString(
@@ -658,7 +685,6 @@ export function parseSupportedTomlObject(value: TomlObject): ConfigDraft {
   );
   draft.general.projectRootMarkers = parseStringArray(value.project_root_markers);
   draft.general.notify = parseStringArray(value.notify);
-  draft.general.commitAttribution = parseString(value.commit_attribution);
   draft.general.experimentalCompactPromptFile = parseString(
     value.experimental_compact_prompt_file,
   );
@@ -762,6 +788,9 @@ export function parseSupportedTomlObject(value: TomlObject): ConfigDraft {
     draft.agents.jobMaxRuntimeSeconds = parseNumberLikeString(
       value.agents.job_max_runtime_seconds,
     );
+    draft.agents.interruptMessage = parseFeatureToggle(
+      value.agents.interrupt_message,
+    );
   }
 
   if (isPlainObject(value.model_providers)) {
@@ -837,9 +866,12 @@ export function extractUnsupportedFragment(value: TomlObject): TomlObject {
     "model_verbosity",
     "model_context_window",
     "model_auto_compact_token_limit",
+    "model_auto_compact_token_limit_scope",
     "model_supports_reasoning_summaries",
     "model_catalog_json",
     "model_instructions_file",
+    "developer_instructions",
+    "compact_prompt",
     "tool_output_token_limit",
     "default_permissions",
     "personality",
@@ -857,7 +889,6 @@ export function extractUnsupportedFragment(value: TomlObject): TomlObject {
     "project_doc_fallback_filenames",
     "project_root_markers",
     "notify",
-    "commit_attribution",
     "experimental_compact_prompt_file",
     "experimental_use_unified_exec_tool",
     "background_terminal_max_timeout",
@@ -948,6 +979,7 @@ export function extractUnsupportedFragment(value: TomlObject): TomlObject {
       "max_threads",
       "max_depth",
       "job_max_runtime_seconds",
+      "interrupt_message",
     ]);
     if (Object.keys(clone.agents).length === 0) {
       delete clone.agents;
@@ -996,6 +1028,8 @@ export function extractUnsupportedFragment(value: TomlObject): TomlObject {
     "disabled_tools",
     "scopes",
     "oauth_resource",
+    "auth",
+    "default_tools_approval_mode",
   ]);
   if (isPlainObject(clone.mcp_servers) && Object.keys(clone.mcp_servers).length === 0) {
     delete clone.mcp_servers;
@@ -1126,6 +1160,7 @@ export function createSampleToml(options: GenerateConfigOptions = {}): string {
 function addReferenceHeader(toml: string): string {
   const header = [
     `# Reference: ${SAMPLE_REFERENCE_URL}`,
+    `# Reference: ${CONFIG_REFERENCE_URL}`,
     `# Reference: ${SUBAGENTS_REFERENCE_URL}`,
     `# Declared against official docs on ${SAMPLE_REVIEWED_ON}`,
     "",

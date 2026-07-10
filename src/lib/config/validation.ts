@@ -114,7 +114,9 @@ function hasMcpContent(row: ConfigDraft["mcpServers"][number]) {
     compactStringList(row.enabledTools).length > 0 ||
     compactStringList(row.disabledTools).length > 0 ||
     compactStringList(row.scopes).length > 0 ||
-    row.oauthResource !== empty.oauthResource
+    row.oauthResource !== empty.oauthResource ||
+    row.auth !== empty.auth ||
+    row.defaultToolsApprovalMode !== empty.defaultToolsApprovalMode
   );
 }
 

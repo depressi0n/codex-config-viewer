@@ -20,6 +20,9 @@ describe("config TOML transforms", () => {
     draft.general.modelVerbosity = "high";
     draft.general.modelContextWindow = "400000";
     draft.general.modelAutoCompactTokenLimit = "200000";
+    draft.general.modelAutoCompactTokenLimitScope = "body_after_prefix";
+    draft.general.developerInstructions = "Prefer pure functions.\nKeep data flow explicit.";
+    draft.general.compactPrompt = "Preserve decisions and open questions.";
     draft.general.toolOutputTokenLimit = "16000";
     draft.general.modelCatalogJson = "./models.json";
     draft.general.modelSupportsReasoningSummaries = true;
@@ -38,6 +41,7 @@ describe("config TOML transforms", () => {
     draft.agents.maxThreads = "6";
     draft.agents.maxDepth = "1";
     draft.agents.jobMaxRuntimeSeconds = "1800";
+    draft.agents.interruptMessage = "disabled";
     draft.projects = [{ path: "/workspace/project", trustLevel: "trusted" }];
 
     const docsServer = createEmptyMcpServer();
@@ -45,6 +49,9 @@ describe("config TOML transforms", () => {
     docsServer.transport = "http";
     docsServer.url = "https://docs.example.com/mcp";
     docsServer.scopes = ["read:docs"];
+    docsServer.enabled = false;
+    docsServer.auth = "oauth";
+    docsServer.defaultToolsApprovalMode = "prompt";
     draft.mcpServers = [docsServer];
 
     const generated = generateConfigToml(draft);
@@ -54,16 +61,26 @@ describe("config TOML transforms", () => {
       "# Reference: https://developers.openai.com/codex/config-sample/",
     );
     expect(generated.toml).toContain(
+      "# Reference: https://developers.openai.com/codex/config-reference/",
+    );
+    expect(generated.toml).toContain(
       "# Reference: https://developers.openai.com/codex/subagents",
     );
     expect(generated.toml).toContain(
-      "# Declared against official docs on 2026-06-23",
+      "# Declared against official docs on 2026-07-10",
     );
-    expect(parsed.draft.general.model).toBe("gpt-5.5");
+    expect(parsed.draft.general.model).toBe("gpt-5.6");
     expect(parsed.draft.general.sandboxMode).toBe("workspace-write");
     expect(parsed.draft.general.modelVerbosity).toBe("high");
     expect(parsed.draft.general.modelContextWindow).toBe("400000");
     expect(parsed.draft.general.modelAutoCompactTokenLimit).toBe("200000");
+    expect(parsed.draft.general.modelAutoCompactTokenLimitScope).toBe("body_after_prefix");
+    expect(parsed.draft.general.developerInstructions).toBe(
+      "Prefer pure functions.\nKeep data flow explicit.",
+    );
+    expect(parsed.draft.general.compactPrompt).toBe(
+      "Preserve decisions and open questions.",
+    );
     expect(parsed.draft.general.toolOutputTokenLimit).toBe("16000");
     expect(parsed.draft.general.modelCatalogJson).toBe("./models.json");
     expect(parsed.draft.general.modelSupportsReasoningSummaries).toBe(true);
@@ -85,7 +102,11 @@ describe("config TOML transforms", () => {
     expect(parsed.draft.agents.maxThreads).toBe("6");
     expect(parsed.draft.agents.maxDepth).toBe("1");
     expect(parsed.draft.agents.jobMaxRuntimeSeconds).toBe("1800");
+    expect(parsed.draft.agents.interruptMessage).toBe("disabled");
     expect(parsed.draft.mcpServers[0]?.url).toBe("https://docs.example.com/mcp");
+    expect(parsed.draft.mcpServers[0]?.enabled).toBe(false);
+    expect(parsed.draft.mcpServers[0]?.auth).toBe("oauth");
+    expect(parsed.draft.mcpServers[0]?.defaultToolsApprovalMode).toBe("prompt");
     expect(parsed.draft.projects[0]?.trustLevel).toBe("trusted");
   });
 
@@ -186,7 +207,8 @@ describe("config TOML transforms", () => {
         "fast_mode = false",
         "unified_exec = true",
         "memories = true",
-        "undo = false",
+        "goals = true",
+        "remote_plugin = false",
       ].join("\n"),
     );
     const generated = generateConfigToml(parsed.draft);
@@ -197,14 +219,36 @@ describe("config TOML transforms", () => {
     expect(parsed.draft.features.fastMode).toBe("disabled");
     expect(parsed.draft.features.unifiedExec).toBe("enabled");
     expect(parsed.draft.features.memories).toBe("enabled");
-    expect(parsed.draft.features.undo).toBe("disabled");
+    expect(parsed.draft.features.goals).toBe("enabled");
+    expect(parsed.draft.features.remotePlugin).toBe("disabled");
     expect(parsed.unsupportedToml).toBe("");
     expect(generated.toml).toContain("apps = false");
     expect(generated.toml).toContain("hooks = true");
     expect(generated.toml).toContain("fast_mode = false");
     expect(generated.toml).toContain("unified_exec = true");
+    expect(generated.toml).toContain("goals = true");
+    expect(generated.toml).toContain("remote_plugin = false");
     expect(reparsed.draft.features.fastMode).toBe("disabled");
     expect(reparsed.draft.features.unifiedExec).toBe("enabled");
+  });
+
+  it("round-trips the indexed web search mode", () => {
+    const parsed = parseConfigToml('web_search = "indexed"');
+    const generated = generateConfigToml(parsed.draft);
+
+    expect(parsed.draft.general.webSearch).toBe("indexed");
+    expect(parsed.draft.tools.webSearch).toBe("indexed");
+    expect(parsed.unsupportedToml).toBe("");
+    expect(generated.toml).toContain('web_search = "indexed"');
+  });
+
+  it("preserves removed legacy keys as advanced TOML", () => {
+    const parsed = parseConfigToml(
+      ["commit_attribution = \"legacy\"", "", "[features]", "undo = true"].join("\n"),
+    );
+
+    expect(parsed.unsupportedToml).toContain('commit_attribution = "legacy"');
+    expect(parsed.unsupportedToml).toContain("undo = true");
   });
 
   it("maps documented legacy feature aliases into current fields", () => {

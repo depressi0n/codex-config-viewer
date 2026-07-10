@@ -5,12 +5,12 @@ export const enDictionary: DictionaryShape = {
     title: "Codex Config Viewer",
     subtitle:
       "A bilingual visual editor for the official Codex config docs, with TOML import, preview, and export.",
-    badge: "Reviewed against official docs on 2026-06-23",
+    badge: "Reviewed against official docs on 2026-07-10",
     sampleLabel: "Official sample snapshot",
     recommended: {
       label: "Recommended starter preset",
       description:
-        "An app-maintained preset built on the 2026-06-23 official sample for day-to-day coding: workspace-write sandbox, on-request approvals, core shell inheritance, and live web search.",
+        "An app-maintained preset built on the 2026-07-10 official sample for day-to-day coding: workspace-write sandbox, on-request approvals, core shell inheritance, and live web search.",
       note: "This preset is opinionated and is not part of the official sample.",
     },
     actions: {
@@ -34,6 +34,7 @@ export const enDictionary: DictionaryShape = {
     reference: {
       label: "Reference",
       sampleSource: "Official sample config",
+      configReferenceSource: "Config reference",
       subagentsSource: "Subagents",
       declaredAt: "Declared date",
     },
@@ -176,7 +177,7 @@ export const enDictionary: DictionaryShape = {
     ],
     sandboxMode: ["Sandbox mode", "Filesystem and network access policy."],
     serviceTier: ["Service tier", "Preferred service tier when supported."],
-    webSearch: ["Web search", "Use disabled, cached, or live web search results."],
+    webSearch: ["Web search", "Use disabled, cached, indexed, or live web search results."],
     activeProfile: ["Profile", "Name of the applied profile."],
     modelReasoningEffort: ["Reasoning effort", "Reasoning effort for normal mode."],
     planModeReasoningEffort: [
@@ -193,6 +194,10 @@ export const enDictionary: DictionaryShape = {
       "Auto compact token limit",
       "Token threshold that triggers automatic history compaction.",
     ],
+    modelAutoCompactTokenLimitScope: [
+      "Auto compact limit scope",
+      "Count the full context or only content after the carried compaction prefix.",
+    ],
     modelSupportsReasoningSummaries: [
       "Supports reasoning summaries",
       "Force reasoning summary metadata for the current model.",
@@ -201,6 +206,14 @@ export const enDictionary: DictionaryShape = {
     modelInstructionsFile: [
       "Model instructions file",
       "Path to a file replacing built-in model instructions.",
+    ],
+    developerInstructions: [
+      "Developer instructions",
+      "Additional developer instructions injected before AGENTS.md.",
+    ],
+    compactPrompt: [
+      "Compact prompt",
+      "Inline override for the history compaction prompt.",
     ],
     toolOutputTokenLimit: ["Tool output token limit", "Token budget stored per tool output."],
     ossProvider: ["OSS provider", "Default provider for --oss sessions."],
@@ -243,7 +256,6 @@ export const enDictionary: DictionaryShape = {
       "Extra filenames or directories used to detect project roots.",
     ],
     notify: ["Notify command", "Command array run after Codex finishes."],
-    commitAttribution: ["Commit attribution", "Override or disable commit co-author text."],
     experimentalCompactPromptFile: [
       "Compact prompt file",
       "Path to a compact prompt override file.",
@@ -281,10 +293,6 @@ export const enDictionary: DictionaryShape = {
     shellTool: ["Shell tool", "Enable the default shell tool for running commands."],
     apps: ["Apps/connectors", "Enable ChatGPT Apps and connector support."],
     hooks: ["Hooks", "Enable lifecycle hooks from hooks.json or inline [hooks]."],
-    codexGitCommit: [
-      "Codex git commit",
-      "Allow Codex-generated git commits and optional commit attribution.",
-    ],
     unifiedExec: ["Unified exec", "Use the PTY-backed unified exec tool."],
     shellSnapshot: [
       "Shell snapshot",
@@ -294,6 +302,8 @@ export const enDictionary: DictionaryShape = {
       "Multi-agent",
       "Enable multi-agent collaboration tools such as spawn and resume.",
     ],
+    goals: ["Goals", "Enable persisted goals and automatic continuation."],
+    remotePlugin: ["Remote plugin", "Enable the remote plugin catalog."],
     personalityFeature: [
       "Personality controls",
       "Enable personality selection controls in supported Codex surfaces.",
@@ -315,7 +325,6 @@ export const enDictionary: DictionaryShape = {
       "Keep the machine awake while a turn is actively running.",
     ],
     memories: ["Memories", "Enable Codex memories."],
-    undo: ["Undo", "Enable undo support."],
     writableRoots: ["Writable roots", "Extra writable roots beyond the current workspace."],
     networkAccess: ["Network access", "Allow outbound network access in workspace-write mode."],
     excludeTmpdirEnvVar: [
@@ -350,6 +359,10 @@ export const enDictionary: DictionaryShape = {
     agentsJobMaxRuntimeSeconds: [
       "Job max runtime (sec)",
       "Maximum runtime per subagent job in seconds.",
+    ],
+    agentsInterruptMessage: [
+      "Interrupt message",
+      "Record a model-visible message when an agent turn is interrupted.",
     ],
     providerId: ["Provider id", "Table key inside [model_providers]."],
     providerName: ["Provider name", "Friendly label shown in UI or docs."],
@@ -408,6 +421,11 @@ export const enDictionary: DictionaryShape = {
     disabledTools: ["Disabled tools", "Deny-list applied after the allow-list."],
     scopes: ["Scopes", "OAuth scopes requested for the server."],
     oauthResource: ["OAuth resource", "Optional OAuth resource identifier."],
+    mcpAuth: ["HTTP auth", "Authentication fallback for an MCP HTTP server."],
+    defaultToolsApprovalMode: [
+      "Default tool approval mode",
+      "Default approval behavior for this MCP server's tools.",
+    ],
     profileId: ["Profile id", "Table key inside [profiles]."],
     projectPath: ["Project path", "Absolute project path used as the TOML table key."],
     trustLevel: ["Trust level", "Whether the project is trusted or untrusted."],
@@ -421,7 +439,7 @@ export const enDictionary: DictionaryShape = {
   options: {
     approvalPolicy: {
       untrusted: "Untrusted",
-      "on-failure": "On failure",
+      "on-failure": "On failure (deprecated)",
       "on-request": "On request",
       never: "Never",
       granular: "Granular",
@@ -448,7 +466,22 @@ export const enDictionary: DictionaryShape = {
     webSearch: {
       disabled: "Disabled",
       cached: "Cached",
+      indexed: "Indexed",
       live: "Live",
+    },
+    modelAutoCompactTokenLimitScope: {
+      total: "Total context",
+      body_after_prefix: "Body after prefix",
+    },
+    mcpAuth: {
+      oauth: "OAuth",
+      chatgpt: "ChatGPT session",
+    },
+    toolApprovalMode: {
+      auto: "Auto",
+      prompt: "Prompt",
+      writes: "Writes",
+      approve: "Approve",
     },
     reasoning: {
       none: "None",

@@ -216,6 +216,7 @@ describe("ConfigEditor", () => {
     expect(
       screen.getAllByRole("link", { name: "Official sample config" }),
     ).toHaveLength(2);
+    expect(screen.getAllByRole("link", { name: "Config reference" })).toHaveLength(2);
     expect(screen.getAllByRole("link", { name: "Subagents" })).toHaveLength(2);
   });
 

@@ -41,7 +41,12 @@ export const HISTORY_PERSISTENCE_OPTIONS = ["save-all", "none"] as const;
 
 export const SHELL_INHERITANCE_OPTIONS = ["all", "core", "none"] as const;
 
-export const WEB_SEARCH_OPTIONS = ["disabled", "cached", "live"] as const;
+export const WEB_SEARCH_OPTIONS = ["disabled", "cached", "indexed", "live"] as const;
+
+export const MODEL_AUTO_COMPACT_TOKEN_LIMIT_SCOPE_OPTIONS = [
+  "total",
+  "body_after_prefix",
+] as const;
 
 export const CREDENTIAL_STORE_OPTIONS = ["file", "keyring", "auto"] as const;
 
@@ -60,6 +65,15 @@ export const SERVICE_TIER_OPTIONS = ["fast", "flex"] as const;
 export const TRANSPORT_OPTIONS = [
   { value: "stdio", label: "STDIO" },
   { value: "http", label: "HTTP" },
+] as const;
+
+export const MCP_AUTH_OPTIONS = ["oauth", "chatgpt"] as const;
+
+export const TOOL_APPROVAL_MODE_OPTIONS = [
+  "auto",
+  "prompt",
+  "writes",
+  "approve",
 ] as const;
 
 export const TRUST_LEVEL_OPTIONS = ["trusted", "untrusted"] as const;

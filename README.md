@@ -14,8 +14,9 @@
 ## 参考来源
 
 - 官方参考链接：[https://developers.openai.com/codex/config-sample/](https://developers.openai.com/codex/config-sample/)
+- 官方配置参考：[https://developers.openai.com/codex/config-reference/](https://developers.openai.com/codex/config-reference/)
 - 官方 Subagents 文档：[https://developers.openai.com/codex/subagents](https://developers.openai.com/codex/subagents)
-- 当前项目声明基于上述官方文档的审核时间：`2026-06-23`
+- 当前项目声明基于上述官方文档的审核时间：`2026-07-10`
 - Vercel Deploy Button 参考文档：[Working with the Deploy Button](https://vercel.com/docs/deployments/deploy-button)
 
 说明：
@@ -119,7 +120,7 @@ pnpm test
 
 - `Apply recommended preset` / `应用推荐预设`
 
-当前推荐预设是本项目维护的非官方起步配置，基于 `2026-06-23` 审核的官方 sample 进行收敛，默认会应用这些关键值：
+当前推荐预设是本项目维护的非官方起步配置，基于 `2026-07-10` 审核的官方 sample 进行收敛，默认会应用这些关键值：
 
 - `approval_policy = "on-request"`
 - `sandbox_mode = "workspace-write"`
@@ -145,6 +146,18 @@ pnpm test
 - Advanced
 
 适合表单化的字段会直接映射为输入框、下拉框、开关或动态列表。
+
+本次同步覆盖了官方文档新增或调整的常用配置，包括：
+
+- 官方 sample 默认模型 `gpt-5.6`
+- `web_search = "indexed"`
+- `model_auto_compact_token_limit_scope`
+- `developer_instructions` 与 `compact_prompt`
+- `agents.interrupt_message`
+- `[features].goals` 与 `[features].remote_plugin`
+- MCP HTTP `auth` 与 `default_tools_approval_mode`
+
+不再出现在当前配置参考中的旧字段会作为高级 TOML 保留，导入导出时不会静默丢失。
 
 ### 3. 导入已有 `config.toml`
 
@@ -206,8 +219,9 @@ pnpm test
 
 ```toml
 # Reference: https://developers.openai.com/codex/config-sample/
+# Reference: https://developers.openai.com/codex/config-reference/
 # Reference: https://developers.openai.com/codex/subagents
-# Declared against official docs on 2026-06-23
+# Declared against official docs on 2026-07-10
 ```
 
 ## Subagents 示例包

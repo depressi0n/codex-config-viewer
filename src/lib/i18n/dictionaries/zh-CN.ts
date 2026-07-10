@@ -4,12 +4,12 @@ export const zhCnDictionary: DictionaryShape = {
   app: {
     title: "Codex 配置可视化管理器",
     subtitle: "基于官方 Codex 配置文档的双语可视化编辑器，支持 TOML 导入、预览和导出。",
-    badge: "基于 2026-06-23 官方文档审核",
+    badge: "基于 2026-07-10 官方文档审核",
     sampleLabel: "官方 sample 快照",
     recommended: {
       label: "推荐起步配置",
       description:
-        "这是一个基于 2026-06-23 官方 sample 的项目内推荐预设，面向日常编码场景：workspace-write、按需审批、core shell 继承、实时 Web 搜索。",
+        "这是一个基于 2026-07-10 官方 sample 的项目内推荐预设，面向日常编码场景：workspace-write、按需审批、core shell 继承、实时 Web 搜索。",
       note: "该预设带有项目判断，不属于官方 sample 原文。",
     },
     actions: {
@@ -33,6 +33,7 @@ export const zhCnDictionary: DictionaryShape = {
     reference: {
       label: "参考来源",
       sampleSource: "官方 sample config",
+      configReferenceSource: "配置参考",
       subagentsSource: "Subagents",
       declaredAt: "声明日期",
     },
@@ -166,7 +167,7 @@ export const zhCnDictionary: DictionaryShape = {
     allowLoginShell: ["允许登录 Shell", "需要时允许命令使用 login shell 语义运行。"],
     sandboxMode: ["沙箱模式", "文件系统和网络访问策略。"],
     serviceTier: ["服务层级", "支持时优先使用的服务层级。"],
-    webSearch: ["Web Search", "使用 disabled、cached 或 live 网络搜索结果。"],
+    webSearch: ["Web Search", "使用 disabled、cached、indexed 或 live 网络搜索结果。"],
     activeProfile: ["Profile", "当前启用的 profile 名称。"],
     modelReasoningEffort: ["推理强度", "普通模式下的推理强度。"],
     planModeReasoningEffort: ["计划模式推理", "plan mode 下的可选推理覆盖。"],
@@ -174,9 +175,15 @@ export const zhCnDictionary: DictionaryShape = {
     modelVerbosity: ["模型详略度", "GPT-5 系列的输出详略度覆盖。"],
     modelContextWindow: ["上下文窗口", "手动设置模型上下文 token 数。"],
     modelAutoCompactTokenLimit: ["自动压缩阈值", "触发历史自动压缩的 token 阈值。"],
+    modelAutoCompactTokenLimitScope: [
+      "自动压缩阈值范围",
+      "选择统计完整上下文，或仅统计压缩前缀之后的内容。",
+    ],
     modelSupportsReasoningSummaries: ["支持推理摘要", "强制为当前模型发送推理摘要元数据。"],
     modelCatalogJson: ["模型目录 JSON", "启动时加载的模型目录 JSON 路径。"],
     modelInstructionsFile: ["模型指令文件", "替换内置模型指令的文件路径。"],
+    developerInstructions: ["开发者指令", "在 AGENTS.md 之前注入的附加开发者指令。"],
+    compactPrompt: ["压缩提示", "历史压缩提示的内联覆盖文本。"],
     toolOutputTokenLimit: ["工具输出 token 上限", "单次工具输出存入历史的 token 预算。"],
     ossProvider: ["OSS Provider", "--oss 会话的默认 provider。"],
     cliAuthCredentialsStore: ["CLI 认证存储", "CLI 登录凭据的存储位置。"],
@@ -194,7 +201,6 @@ export const zhCnDictionary: DictionaryShape = {
     ],
     projectRootMarkers: ["项目根标记", "用于检测项目根目录的额外文件或目录。"],
     notify: ["通知命令", "Codex 结束后执行的命令数组。"],
-    commitAttribution: ["提交署名", "覆盖或禁用 commit co-author 文本。"],
     experimentalCompactPromptFile: ["压缩提示文件", "历史压缩提示覆盖文件路径。"],
     backgroundTerminalMaxTimeout: ["终端最长等待 (ms)", "后台终端空轮询的最大等待窗口。"],
     logDir: ["日志目录", "Codex 写入日志的目录。"],
@@ -217,16 +223,14 @@ export const zhCnDictionary: DictionaryShape = {
     shellTool: ["Shell 工具", "启用默认的 shell 命令执行工具。"],
     apps: ["Apps / Connectors", "启用 ChatGPT Apps 与连接器支持。"],
     hooks: ["Hooks", "启用 hooks.json 或内联 [hooks] 生命周期钩子。"],
-    codexGitCommit: [
-      "Codex Git Commit",
-      "允许 Codex 自动生成 git commit，并配合 commit attribution 使用。",
-    ],
     unifiedExec: ["Unified Exec", "启用基于 PTY 的统一 exec 工具。"],
     shellSnapshot: [
       "Shell 快照",
       "缓存 shell 环境快照，加快重复命令执行。",
     ],
     multiAgent: ["多 Agent", "启用 spawn、resume 等多 agent 协作工具。"],
+    goals: ["Goals", "启用持久化目标与自动续跑。"],
+    remotePlugin: ["远程插件", "启用远程插件目录。"],
     personalityFeature: [
       "个性控制",
       "在支持的 Codex 界面中启用 personality 选择控件。",
@@ -248,7 +252,6 @@ export const zhCnDictionary: DictionaryShape = {
       "在 turn 正在运行时保持机器唤醒。",
     ],
     memories: ["Memories", "启用 Codex Memories。"],
-    undo: ["撤销", "启用 undo 支持。"],
     writableRoots: ["可写目录", "当前 workspace 之外的额外可写根目录。"],
     networkAccess: ["网络访问", "workspace-write 模式下允许外网访问。"],
     excludeTmpdirEnvVar: ["排除 TMPDIR 环境变量", "workspace-write 模式下不透传 TMPDIR。"],
@@ -274,6 +277,10 @@ export const zhCnDictionary: DictionaryShape = {
     agentsJobMaxRuntimeSeconds: [
       "任务最长运行时间 (秒)",
       "单个 subagent 任务允许的最长运行时间，单位秒。",
+    ],
+    agentsInterruptMessage: [
+      "中断消息",
+      "Agent turn 被中断时记录一条模型可见消息。",
     ],
     providerId: ["Provider 标识", "[model_providers] 中的 table key。"],
     providerName: ["Provider 名称", "面向用户或文档展示的名称。"],
@@ -314,6 +321,11 @@ export const zhCnDictionary: DictionaryShape = {
     disabledTools: ["禁用工具", "在 allow-list 后应用的 deny-list。"],
     scopes: ["Scopes", "该服务请求的 OAuth scopes。"],
     oauthResource: ["OAuth Resource", "可选的 OAuth resource 标识。"],
+    mcpAuth: ["HTTP 认证", "MCP HTTP server 的认证回退方式。"],
+    defaultToolsApprovalMode: [
+      "默认工具审批模式",
+      "该 MCP server 工具的默认审批行为。",
+    ],
     profileId: ["Profile 标识", "[profiles] 中的 table key。"],
     projectPath: ["项目路径", "作为 TOML table key 的绝对路径。"],
     trustLevel: ["信任级别", "项目是 trusted 还是 untrusted。"],
@@ -325,7 +337,7 @@ export const zhCnDictionary: DictionaryShape = {
   options: {
     approvalPolicy: {
       untrusted: "Untrusted",
-      "on-failure": "失败时请求",
+      "on-failure": "失败时请求（已弃用）",
       "on-request": "按需请求",
       never: "从不请求",
       granular: "细粒度",
@@ -352,7 +364,22 @@ export const zhCnDictionary: DictionaryShape = {
     webSearch: {
       disabled: "禁用",
       cached: "缓存",
+      indexed: "索引",
       live: "实时",
+    },
+    modelAutoCompactTokenLimitScope: {
+      total: "完整上下文",
+      body_after_prefix: "压缩前缀之后",
+    },
+    mcpAuth: {
+      oauth: "OAuth",
+      chatgpt: "ChatGPT 会话",
+    },
+    toolApprovalMode: {
+      auto: "自动",
+      prompt: "提示",
+      writes: "写入时",
+      approve: "审批",
     },
     reasoning: {
       none: "无",

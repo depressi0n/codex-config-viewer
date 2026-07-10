@@ -6,8 +6,9 @@ import type {
   ProjectDraft,
 } from "@/lib/config/types";
 
-export const SAMPLE_REVIEWED_ON = "2026-06-23";
+export const SAMPLE_REVIEWED_ON = "2026-07-10";
 export const SAMPLE_REFERENCE_URL = "https://developers.openai.com/codex/config-sample/";
+export const CONFIG_REFERENCE_URL = "https://developers.openai.com/codex/config-reference/";
 export const SUBAGENTS_REFERENCE_URL = "https://developers.openai.com/codex/subagents";
 export const REPOSITORY_URL = "https://github.com/depressi0n/codex-config-viewer";
 export const SAMPLE_UNSUPPORTED_TOML = [
@@ -97,6 +98,8 @@ export function createEmptyMcpServer(): McpServerDraft {
     disabledTools: [],
     scopes: [],
     oauthResource: "",
+    auth: "",
+    defaultToolsApprovalMode: "",
   };
 }
 
@@ -154,9 +157,12 @@ export function createEmptyDraft(): ConfigDraft {
       modelVerbosity: "",
       modelContextWindow: "",
       modelAutoCompactTokenLimit: "",
+      modelAutoCompactTokenLimitScope: "",
       modelSupportsReasoningSummaries: false,
       modelCatalogJson: "",
       modelInstructionsFile: "",
+      developerInstructions: "",
+      compactPrompt: "",
       toolOutputTokenLimit: "",
       defaultPermissions: "",
       personality: "",
@@ -173,7 +179,6 @@ export function createEmptyDraft(): ConfigDraft {
       projectDocFallbackFilenames: [],
       projectRootMarkers: [],
       notify: [],
-      commitAttribution: "",
       experimentalCompactPromptFile: "",
       backgroundTerminalMaxTimeout: "",
       logDir: "",
@@ -194,17 +199,17 @@ export function createEmptyDraft(): ConfigDraft {
       shellTool: "",
       apps: "",
       hooks: "",
-      codexGitCommit: "",
       unifiedExec: "",
       shellSnapshot: "",
       multiAgent: "",
+      goals: "",
+      remotePlugin: "",
       personalityFeature: "",
       fastMode: "",
       enableRequestCompression: "",
       skillMcpDependencyInstall: "",
       preventIdleSleep: "",
       memories: "",
-      undo: "",
     },
     sandboxWorkspaceWrite: {
       writableRoots: [],
@@ -228,6 +233,7 @@ export function createEmptyDraft(): ConfigDraft {
       maxThreads: "",
       maxDepth: "",
       jobMaxRuntimeSeconds: "",
+      interruptMessage: "",
     },
     modelProviders: [],
     mcpServers: [],
@@ -239,7 +245,7 @@ export function createEmptyDraft(): ConfigDraft {
 export function createSampleDraft(): ConfigDraft {
   return {
     general: {
-      model: "gpt-5.5",
+      model: "gpt-5.6",
       reviewModel: "",
       modelProvider: "openai",
       approvalPolicy: "on-request",
@@ -262,9 +268,12 @@ export function createSampleDraft(): ConfigDraft {
       modelVerbosity: "",
       modelContextWindow: "",
       modelAutoCompactTokenLimit: "",
+      modelAutoCompactTokenLimitScope: "",
       modelSupportsReasoningSummaries: false,
       modelCatalogJson: "",
       modelInstructionsFile: "",
+      developerInstructions: "",
+      compactPrompt: "",
       toolOutputTokenLimit: "",
       defaultPermissions: "",
       personality: "",
@@ -281,7 +290,6 @@ export function createSampleDraft(): ConfigDraft {
       projectDocFallbackFilenames: [],
       projectRootMarkers: [],
       notify: [],
-      commitAttribution: "",
       experimentalCompactPromptFile: "",
       backgroundTerminalMaxTimeout: "",
       logDir: "",
@@ -302,17 +310,17 @@ export function createSampleDraft(): ConfigDraft {
       shellTool: "",
       apps: "",
       hooks: "",
-      codexGitCommit: "",
       unifiedExec: "",
       shellSnapshot: "",
       multiAgent: "",
+      goals: "",
+      remotePlugin: "",
       personalityFeature: "",
       fastMode: "",
       enableRequestCompression: "",
       skillMcpDependencyInstall: "",
       preventIdleSleep: "",
       memories: "",
-      undo: "",
     },
     sandboxWorkspaceWrite: {
       writableRoots: [],
@@ -336,6 +344,7 @@ export function createSampleDraft(): ConfigDraft {
       maxThreads: "",
       maxDepth: "",
       jobMaxRuntimeSeconds: "",
+      interruptMessage: "",
     },
     modelProviders: [],
     mcpServers: [],

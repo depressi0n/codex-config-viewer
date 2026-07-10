@@ -34,7 +34,12 @@ export type HistoryPersistenceValue = "" | "save-all" | "none";
 
 export type ShellInheritanceValue = "" | "all" | "core" | "none";
 
-export type WebSearchValue = "" | "disabled" | "cached" | "live";
+export type WebSearchValue = "" | "disabled" | "cached" | "indexed" | "live";
+
+export type ModelAutoCompactTokenLimitScopeValue =
+  | ""
+  | "total"
+  | "body_after_prefix";
 
 export type CredentialStoreValue = "" | "file" | "keyring" | "auto";
 
@@ -53,6 +58,10 @@ export type FileOpenerValue =
 export type ServiceTierValue = "" | "fast" | "flex";
 
 export type TransportValue = "stdio" | "http";
+
+export type McpAuthValue = "" | "oauth" | "chatgpt";
+
+export type ToolApprovalModeValue = "" | "auto" | "prompt" | "writes" | "approve";
 
 export type TrustLevelValue = "" | "trusted" | "untrusted";
 
@@ -87,9 +96,12 @@ export interface GeneralSettings {
   modelVerbosity: VerbosityValue;
   modelContextWindow: string;
   modelAutoCompactTokenLimit: string;
+  modelAutoCompactTokenLimitScope: ModelAutoCompactTokenLimitScopeValue;
   modelSupportsReasoningSummaries: boolean;
   modelCatalogJson: string;
   modelInstructionsFile: string;
+  developerInstructions: string;
+  compactPrompt: string;
   toolOutputTokenLimit: string;
   defaultPermissions: string;
   personality: PersonalityValue;
@@ -106,7 +118,6 @@ export interface GeneralSettings {
   projectDocFallbackFilenames: string[];
   projectRootMarkers: string[];
   notify: string[];
-  commitAttribution: string;
   experimentalCompactPromptFile: string;
   backgroundTerminalMaxTimeout: string;
   logDir: string;
@@ -129,17 +140,17 @@ export interface FeaturesSettings {
   shellTool: FeatureToggleValue;
   apps: FeatureToggleValue;
   hooks: FeatureToggleValue;
-  codexGitCommit: FeatureToggleValue;
   unifiedExec: FeatureToggleValue;
   shellSnapshot: FeatureToggleValue;
   multiAgent: FeatureToggleValue;
+  goals: FeatureToggleValue;
+  remotePlugin: FeatureToggleValue;
   personalityFeature: FeatureToggleValue;
   fastMode: FeatureToggleValue;
   enableRequestCompression: FeatureToggleValue;
   skillMcpDependencyInstall: FeatureToggleValue;
   preventIdleSleep: FeatureToggleValue;
   memories: FeatureToggleValue;
-  undo: FeatureToggleValue;
 }
 
 export interface SandboxWorkspaceWriteSettings {
@@ -167,6 +178,7 @@ export interface AgentsSettings {
   maxThreads: string;
   maxDepth: string;
   jobMaxRuntimeSeconds: string;
+  interruptMessage: FeatureToggleValue;
 }
 
 export interface ModelProviderDraft {
@@ -215,6 +227,8 @@ export interface McpServerDraft {
   disabledTools: string[];
   scopes: string[];
   oauthResource: string;
+  auth: McpAuthValue;
+  defaultToolsApprovalMode: ToolApprovalModeValue;
 }
 
 export interface ProfileDraft {

@@ -4,10 +4,11 @@ export const FEATURE_TOGGLE_DEFINITIONS = [
   { field: "shellTool", tomlKey: "shell_tool" },
   { field: "apps", tomlKey: "apps" },
   { field: "hooks", tomlKey: "hooks" },
-  { field: "codexGitCommit", tomlKey: "codex_git_commit" },
   { field: "unifiedExec", tomlKey: "unified_exec" },
   { field: "shellSnapshot", tomlKey: "shell_snapshot" },
   { field: "multiAgent", tomlKey: "multi_agent" },
+  { field: "goals", tomlKey: "goals" },
+  { field: "remotePlugin", tomlKey: "remote_plugin" },
   { field: "personalityFeature", tomlKey: "personality" },
   { field: "fastMode", tomlKey: "fast_mode" },
   { field: "enableRequestCompression", tomlKey: "enable_request_compression" },
@@ -17,7 +18,6 @@ export const FEATURE_TOGGLE_DEFINITIONS = [
   },
   { field: "preventIdleSleep", tomlKey: "prevent_idle_sleep" },
   { field: "memories", tomlKey: "memories" },
-  { field: "undo", tomlKey: "undo" },
 ] as const satisfies readonly {
   field: keyof FeaturesSettings;
   tomlKey: string;

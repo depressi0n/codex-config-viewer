@@ -20,6 +20,7 @@ import {
   createEmptyProfile,
   createEmptyProject,
   createRecommendedDraft,
+  CONFIG_REFERENCE_URL,
   REPOSITORY_URL,
   SAMPLE_REFERENCE_URL,
   createSampleDraft,
@@ -35,6 +36,8 @@ import {
   FILE_OPENER_OPTIONS,
   HISTORY_PERSISTENCE_OPTIONS,
   LOGIN_METHOD_OPTIONS,
+  MCP_AUTH_OPTIONS,
+  MODEL_AUTO_COMPACT_TOKEN_LIMIT_SCOPE_OPTIONS,
   PLAN_REASONING_OPTIONS,
   PERSONALITY_OPTIONS,
   REASONING_OPTIONS,
@@ -43,6 +46,7 @@ import {
   SERVICE_TIER_OPTIONS,
   SHELL_INHERITANCE_OPTIONS,
   TRANSPORT_OPTIONS,
+  TOOL_APPROVAL_MODE_OPTIONS,
   TRUST_LEVEL_OPTIONS,
   VERBOSITY_OPTIONS,
   WEB_SEARCH_OPTIONS,
@@ -517,6 +521,15 @@ export function ConfigEditor({
                 <span>·</span>
                 <a
                   className="text-emerald-300 underline decoration-emerald-400/40 underline-offset-4 transition hover:text-emerald-200"
+                  href={CONFIG_REFERENCE_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {dictionary.app.reference.configReferenceSource}
+                </a>
+                <span>·</span>
+                <a
+                  className="text-emerald-300 underline decoration-emerald-400/40 underline-offset-4 transition hover:text-emerald-200"
                   href={SUBAGENTS_REFERENCE_URL}
                   target="_blank"
                   rel="noreferrer"
@@ -928,6 +941,26 @@ export function ConfigEditor({
                     }
                   />
                 </Field>
+                <Field {...fieldText("modelAutoCompactTokenLimitScope")}>
+                  <select
+                    className={inputClassName}
+                    value={draft.general.modelAutoCompactTokenLimitScope}
+                    onChange={(event) =>
+                      updateGeneral(
+                        "modelAutoCompactTokenLimitScope",
+                        event.target
+                          .value as ConfigDraft["general"]["modelAutoCompactTokenLimitScope"],
+                      )
+                    }
+                  >
+                    {sharedOptionBlank}
+                    {MODEL_AUTO_COMPACT_TOKEN_LIMIT_SCOPE_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {dictionary.options.modelAutoCompactTokenLimitScope[option]}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
                 <Field {...fieldText("toolOutputTokenLimit")}>
                   <input
                     className={inputClassName}
@@ -952,6 +985,24 @@ export function ConfigEditor({
                     onChange={(event) =>
                       updateGeneral("modelInstructionsFile", event.target.value)
                     }
+                  />
+                </Field>
+                <Field {...fieldText("developerInstructions")}>
+                  <textarea
+                    className={textareaClassName}
+                    rows={3}
+                    value={draft.general.developerInstructions}
+                    onChange={(event) =>
+                      updateGeneral("developerInstructions", event.target.value)
+                    }
+                  />
+                </Field>
+                <Field {...fieldText("compactPrompt")}>
+                  <textarea
+                    className={textareaClassName}
+                    rows={3}
+                    value={draft.general.compactPrompt}
+                    onChange={(event) => updateGeneral("compactPrompt", event.target.value)}
                   />
                 </Field>
                 <Field {...fieldText("defaultPermissions")}>
@@ -1354,6 +1405,26 @@ export function ConfigEditor({
                       updateAgents("jobMaxRuntimeSeconds", event.target.value)
                     }
                   />
+                </Field>
+                <Field {...fieldText("agentsInterruptMessage")}>
+                  <select
+                    className={inputClassName}
+                    value={draft.agents.interruptMessage}
+                    onChange={(event) =>
+                      updateAgents(
+                        "interruptMessage",
+                        event.target.value as ConfigDraft["agents"]["interruptMessage"],
+                      )
+                    }
+                  >
+                    {sharedOptionBlank}
+                    <option value="enabled">
+                      {dictionary.options.featureToggle.enabled}
+                    </option>
+                    <option value="disabled">
+                      {dictionary.options.featureToggle.disabled}
+                    </option>
+                  </select>
                 </Field>
               </div>
             </SectionCard>
@@ -1902,22 +1973,47 @@ export function ConfigEditor({
                         />
                       </Field>
                       {server.transport === "http" ? (
-                        <Field {...fieldText("bearerTokenEnvVar")}>
-                          <input
-                            className={inputClassName}
-                            value={server.bearerTokenEnvVar}
-                            onChange={(event) =>
-                              setDraft((current) => {
-                                const mcpServers = [...current.mcpServers];
-                                mcpServers[index] = {
-                                  ...server,
-                                  bearerTokenEnvVar: event.target.value,
-                                };
-                                return { ...current, mcpServers };
-                              })
-                            }
-                          />
-                        </Field>
+                        <>
+                          <Field {...fieldText("bearerTokenEnvVar")}>
+                            <input
+                              className={inputClassName}
+                              value={server.bearerTokenEnvVar}
+                              onChange={(event) =>
+                                setDraft((current) => {
+                                  const mcpServers = [...current.mcpServers];
+                                  mcpServers[index] = {
+                                    ...server,
+                                    bearerTokenEnvVar: event.target.value,
+                                  };
+                                  return { ...current, mcpServers };
+                                })
+                              }
+                            />
+                          </Field>
+                          <Field {...fieldText("mcpAuth")}>
+                            <select
+                              className={inputClassName}
+                              value={server.auth}
+                              onChange={(event) =>
+                                setDraft((current) => {
+                                  const mcpServers = [...current.mcpServers];
+                                  mcpServers[index] = {
+                                    ...server,
+                                    auth: event.target.value as typeof server.auth,
+                                  };
+                                  return { ...current, mcpServers };
+                                })
+                              }
+                            >
+                              {sharedOptionBlank}
+                              {MCP_AUTH_OPTIONS.map((option) => (
+                                <option key={option} value={option}>
+                                  {dictionary.options.mcpAuth[option]}
+                                </option>
+                              ))}
+                            </select>
+                          </Field>
+                        </>
                       ) : (
                         <Field {...fieldText("cwd")}>
                           <input
@@ -1988,6 +2084,30 @@ export function ConfigEditor({
                           />
                         </Field>
                       ) : null}
+                      <Field {...fieldText("defaultToolsApprovalMode")}>
+                        <select
+                          className={inputClassName}
+                          value={server.defaultToolsApprovalMode}
+                          onChange={(event) =>
+                            setDraft((current) => {
+                              const mcpServers = [...current.mcpServers];
+                              mcpServers[index] = {
+                                ...server,
+                                defaultToolsApprovalMode: event.target
+                                  .value as typeof server.defaultToolsApprovalMode,
+                              };
+                              return { ...current, mcpServers };
+                            })
+                          }
+                        >
+                          {sharedOptionBlank}
+                          {TOOL_APPROVAL_MODE_OPTIONS.map((option) => (
+                            <option key={option} value={option}>
+                              {dictionary.options.toolApprovalMode[option]}
+                            </option>
+                          ))}
+                        </select>
+                      </Field>
                     </div>
                     <div className="mt-4 grid gap-3 md:grid-cols-2">
                       {([
@@ -2777,6 +2897,15 @@ export function ConfigEditor({
                     rel="noreferrer"
                   >
                     {dictionary.app.reference.sampleSource}
+                  </a>
+                  <span className="mx-2 text-slate-600">·</span>
+                  <a
+                    className="text-emerald-300 underline decoration-emerald-400/40 underline-offset-4 transition hover:text-emerald-200"
+                    href={CONFIG_REFERENCE_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {dictionary.app.reference.configReferenceSource}
                   </a>
                   <span className="mx-2 text-slate-600">·</span>
                   <a
