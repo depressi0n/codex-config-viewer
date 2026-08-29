@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { diffArrays } from "diff";
 
 import {
   Field,
@@ -152,12 +153,62 @@ export function ConfigEditor({
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  
+
+  // 记录变动的行号以及上一次的文本
+  const [changedLines, setChangedLines] = useState<number[]>([]);
+  const [deletedLineCounts, setDeletedLineCounts] = useState<Record<number, number>>({});
+  const prevPreviewRef = useRef(initialPreview);
 
   const alternateLocale = getAlternateLocale(locale);
 
+  // 监听 preview 变化，计算文本差异并触发高亮
   useEffect(() => {
-    document.documentElement.lang = locale;
-  }, [locale]);
+    if (preview && preview !== prevPreviewRef.current) {
+      //先切割成纯净的数组，消除换行符带来的误判
+      const oldLines = prevPreviewRef.current.split("\n");
+      const newLines = preview.split("\n");
+      const changes = diffArrays(oldLines, newLines);      
+      let currentLineIdx = 0;
+      const newChangedLines: number[] = [];
+      const newDeletedCounts: Record<number, number> = {};
+
+      changes.forEach((part) => {
+        const count = part.count || 0;
+        if (part.added) {
+          for (let i = 0; i < count; i++) {
+            newChangedLines.push(currentLineIdx + i);
+          }
+          currentLineIdx += count;
+        } else if (part.removed) {
+          // 累加当前位置被删除的行数
+          newDeletedCounts[currentLineIdx] = (newDeletedCounts[currentLineIdx] || 0) + count;
+        } else {
+          currentLineIdx += count;
+        }
+      });
+
+      // 过滤逻辑：如果该位置已被标记为绿色修改，则不显示红底（避免颜色重叠冲突）
+      const filteredDeletedCounts: Record<number, number> = {};
+      for (const [idxStr, count] of Object.entries(newDeletedCounts)) {
+        const idx = parseInt(idxStr, 10);
+        if (!newChangedLines.includes(idx)) {
+          filteredDeletedCounts[idx] = count;
+        }
+      }
+
+      setChangedLines(newChangedLines);
+      setDeletedLineCounts(filteredDeletedCounts);
+      prevPreviewRef.current = preview;
+
+      // 1.5 秒后清除高亮，形成平滑渐隐效果
+      const timer = setTimeout(() => {
+        setChangedLines([]);
+        setDeletedLineCounts({});
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [preview]);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
@@ -2691,7 +2742,7 @@ export function ConfigEditor({
             </SectionCard>
           </main>
 
-          <aside className="h-fit space-y-4 xl:sticky xl:top-4">
+          <aside className="h-fit space-y-4 xl:sticky xl:top-4 xl:max-h-[calc(100vh-2rem)] xl:overflow-y-auto xl:pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/10 hover:[&::-webkit-scrollbar-thumb]:bg-white/20">
             <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-4 backdrop-blur">
               <div className="mb-4 rounded-2xl border border-sky-400/20 bg-sky-500/10 p-4">
                 <div className="text-sm font-semibold text-sky-100">
@@ -2882,9 +2933,53 @@ export function ConfigEditor({
                   </ul>
                 </div>
               ) : null}
-              <div className="rounded-2xl border border-white/10 bg-slate-950/90 p-4">
-                <pre className="max-h-[70vh] overflow-auto whitespace-pre-wrap break-words text-sm leading-6 text-slate-100">
-                  {preview || dictionary.app.preview.empty}
+              <div className="rounded-2xl border border-white/10 bg-slate-950/90 p-4 py-2">
+                <pre className="max-h-[70vh] xl:max-h-none overflow-auto whitespace-pre-wrap break-words text-sm leading-6 text-slate-100">
+                  {preview ? (
+                    <>
+                      {preview.split("\n").map((line, index) => {
+                        const deleteCount = deletedLineCounts[index] || 0;
+                        return (
+                          <React.Fragment key={index}>
+                            {/* 如果这里有代码被删，根据删除的行数，渲染出对应数量的红底空行 */}
+                            {deleteCount > 0 &&
+                              Array.from({ length: deleteCount }).map((_, i) => (
+                                <span
+                                  key={`del-${index}-${i}`}
+                                  className="block -mx-4 px-4 bg-rose-500/30 transition-all duration-500 select-none"
+                                >
+                                  {" "}
+                                </span>
+                              ))}
+
+                            {/* 正常的代码行渲染（处理绿色的新增/修改） */}
+                            <span
+                              className={`block -mx-4 px-4 transition-all duration-500 ${
+                                changedLines.includes(index)
+                                  ? "bg-emerald-500/50 text-emerald-200"
+                                  : ""
+                              }`}
+                            >
+                              {line || " "}
+                            </span>
+                          </React.Fragment>
+                        );
+                      })}
+
+                      {/* 如果正好是在文件的最后一行删除了代码，创建一个红底空行 */}
+                      {(deletedLineCounts[preview.split("\n").length] || 0) > 0 &&
+                        Array.from({ length: deletedLineCounts[preview.split("\n").length] }).map((_, i) => (
+                          <span
+                            key={`del-end-${i}`}
+                            className="block -mx-4 px-4 bg-rose-500/30 transition-all duration-500 select-none"
+                          >
+                            {" "}
+                          </span>
+                        ))}
+                    </>
+                  ) : (
+                    dictionary.app.preview.empty
+                  )}
                 </pre>
               </div>
               <div className="mt-3 text-xs text-slate-500">
